@@ -1,0 +1,432 @@
+* {
+    margin: 0px;
+}
+
+body {
+    /*background: url(img/bg-padrao.jpg);*/
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 16px;
+    font-weight: 300;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.2;
+    text-align: left;
+    margin: 0 auto;
+    background: url("img/mussum.jpg") center no-repeat fixed;
+    background-size: cover;
+}
+
+/* ##### Clearfix #####
+   é uma técnica já usada há bastante tempo para evitar
+   que floats se aglomerem, adicionando um espaço vazio tanto
+   antes quanto depois dos elementos */
+.clearfix::before, .clearfix::after {
+    content: "";
+    display: table;
+}
+
+.clearfix::after {
+    clear: both;
+}
+
+/* ##### Fim do Clearfix ##### */
+
+/* ###### Grid Responsivo - ###### */
+
+* {box-sizing: border-box;}
+
+
+   /* Define estilo comum para todo elemento com classe "col-*" */
+[class*="col-"] {
+    float: left;
+    padding: 15px;
+}
+
+   /* Adicionando estilos para que elementos respeitem o grid definido anteriormente */
+.row::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* ###### Fim Grid Responsivo ###### */
+
+.right {
+    text-align: right;
+}
+
+.center {
+    text-align: center;
+}
+
+.justify {
+    text-align: justify;
+}
+
+img, picture, video, embed {
+    max-width: 100%;
+}
+
+figure {
+    margin: 1em 40px;
+}
+
+.btn {
+    border: none;
+    border-radius: 2px;
+    min-height: 36px;
+    min-width: 88px;
+    padding: 1em;
+    font-size: 0.875em;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 1);
+    background-color: #FF5722;
+    text-transform: uppercase;
+    margin: 4px 2px;
+    cursor: pointer;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+}
+
+.btn:active {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.btn:hover {
+    background-color: #D32F2F;    
+}
+
+/* ##### Formatação de texto default ##### */
+h1, h2 {
+    font-size: 2.5em; 
+    font-weight: 800;
+    line-height: 1.75em;
+    margin: 0;
+}
+
+h3 {
+    font-size: 2em;
+    font-weight: 300;
+}
+
+p {
+    font-weight: 300;
+}
+
+a, a:link, a:visited {
+    color: rgba(0, 0, 0, 0.54);
+    font-weight: 400;
+    text-decoration: none;
+}
+
+a:hover {
+    color: rgba(0, 0, 0, 0.87);
+    text-decoration: underline;
+    text-shadow: none;
+}
+
+/* ##### Formatação padrão do header ##### */
+
+header {
+    position: fixed;
+    float: none;
+    width: 100%;
+    z-index: 2;
+}
+
+/* ###### Definindo estilo das divs do header */
+.app-bar {
+    background-color: #FF5722;
+    color: white;
+    padding-left: 2.5%;
+}
+
+.app-title {
+    background-color: #D32F2F;
+}
+
+/* ##### Formatação do menu de navegação ##### */
+
+nav {
+    min-height: 30px;
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.3);
+}
+
+nav ul {
+    list-style-type: none;
+    margin-top: 0px;
+}
+
+nav li {
+    display: inline;
+}
+
+nav ul li a {
+    margin-top: 1%;
+    margin-bottom: 1%;
+    margin-right: 2.5%;
+}
+
+nav ul li:nth-child(3) a { /* seletor do quinto elemento 'li' */
+    margin-right: 0px;
+}
+
+nav a:link, nav a:visited {
+    color: rgba(255, 255, 255, 0.54);
+    font-size: 1.375em;
+    font-weight: 300;
+    display: inline-block;
+}
+
+nav a.ativo:link, nav a:hover {
+    color: rgba(255, 255, 255, 0.87);
+}
+
+/* ##### Formatando a seção Chamada (título) ##### */
+.chamada {
+    text-align: center;
+    padding-top: 10%;
+    padding-bottom: 2%;
+    background-color: rgba(255, 255, 255, 0.74);
+}
+
+h2 span {
+    font-size: 3.75em; /* 60px / 16px */
+    font-weight: 300;
+}
+
+.chamada h3 {
+    margin: 0 auto;
+    width: 900px;
+}
+
+.chamada div.form {
+    width: 60%;
+    margin: 0 auto;
+}
+
+.chamada input[type=text] {
+    width: 100%;
+    background-color: transparent;
+    background-image: url("img/icon-post.png");
+    background-size: 18px;
+    background-repeat: no-repeat;
+    background-position: right center; 
+    border: none;
+    border-bottom: 2px solid #FF5722;
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 1.5em;
+    outline: none;
+    margin-top: 5%;
+}
+
+/* Não existe no momento pseudo-classe para a mudança de cor
+   pseudo classe para a seleção do placeholder text de um input
+   para alterá-la então devemos fazer conforme abaixo (seletores diferentes
+   para navegadores diferentes */
+.chamada input[type=text]::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color: rgba(0, 0, 0, 0.54);
+}
+.chamada input[type=text]:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color: rgba(0, 0, 0, 0.54);
+}
+.chamada input[type=text]::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color: rgba(0, 0, 0, 0.54);
+}
+.chamada input[type=text]:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: rgba(0, 0, 0, 0.54);
+}
+/* Fim da formatação do Placeholder */
+
+/* ##### Formatando o Container e Boxes ##### */
+.container {
+    background-color: rgba(255, 87, 34, 0.74);
+    display: flex;
+    padding: 2.5%;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.desktop, .tablet, .mobile {
+    float: left;
+    position: relative;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.desktop, .tablet {
+    margin-right: 2%;
+}
+
+.mobile {
+    background-color: #9C27B0;
+    margin-right: 0px;
+}
+
+.desktop {
+    background-color: #FF5722;
+}
+
+.tablet {
+    background-color: #4CAF50;
+}
+
+.container h3 {
+    color: rgba(255, 255, 255, 0.87);
+    font-size: 1.7em;
+    font-weight: 300;
+    text-shadow: none;
+}
+
+.container p {
+    background-color: #fff;
+    padding: 1em;
+    padding-bottom: 70px;
+    text-align: justify;
+}
+
+.container figure, .desktop figure, .tablet figure {
+    width: 69%;
+}
+
+/* Formatação do botão "Leia mais" */
+
+.btn-mais {
+    margin-top: 30px;
+    position: absolute;
+    right: 1em;
+    width: 33%;
+    text-align: center;
+}
+
+.btn-mais a {
+    color: rgba(255, 255, 255, 1);
+}
+
+.desktop .btn-mais {
+    background-color: #FF5722;
+}
+
+.desktop .btn-mais:hover {
+    background-color: #E64A19;
+}
+
+.tablet .btn-mais {
+    background-color: #4CAF50;
+}
+
+.tablet .btn-mais:hover {
+    background-color: #388E3C;
+}
+
+.mobile .btn-mais {
+    background-color: #9C27B0;
+}
+
+.mobile .btn-mais:hover {
+    background-color: #7B1FA2;
+}
+
+/* Formatação das imagens */
+.desktop img, tablet img, mobile img {
+    margin: 10px,  auto, -15px, auto;
+    text-align: center;
+}
+
+/* ##### Conteudo ##### */
+.conteudo {
+    max-width: 1200px;
+    padding: 30px 5%;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.conteudo hr {
+    width: 100%;
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+
+.conteudo .row {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border-top: single 2px black;
+    display: flex;
+}
+
+.conteudo .usuario {
+    width: 15%;
+}
+
+.conteudo .usuario p {
+    font-weight: 700;
+}
+
+.conteudo .avatar {
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.conteudo .postagem {
+    margin-left: auto;
+    width: 85%;
+    background-color: #E57373;
+    border-radius: 10px;
+    padding: 1em;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.conteudo .postagem p {
+    display: block;
+}
+
+.conteudo .postagem .timestamp {
+    font-weight: 700;
+    font-size: 0.8em;
+}
+
+.conteudo .postagem span {
+    display: block;
+    float: right;
+    margin-left: auto;
+    width: 80px;
+    text-align: center;
+}
+
+.conteudo .postagem .numLikes {
+    height: 30px;
+    width: 90px;
+    font-size: 26px;
+    margin-top: 12px;
+    padding-left: 40px;
+    border-radius: 7px;
+    background-color: #fff;
+    background-image: url(img/icon-heart.png);
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: 25px 25px;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+}
+
+/* Formatação do Footer - Rodapé com duas colunas */
+footer {
+    clear: both;
+    height: 50px;
+    padding: 10px 0px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #FF5722;
+    color: rgba(255, 255, 255, 0.87);
+}
+
+.copyright {
+    float: left;
+    margin-left: 30px;
+}
+
+.desenvolvedor {
+    float: right;
+    margin-right: 30px;
+}
