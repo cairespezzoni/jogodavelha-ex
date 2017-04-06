@@ -2,7 +2,7 @@
   "name": "jogodavelha-ex",
   "version": "1.0.0",
   "description": "Projeto Jogo da Velha usando AngularJS e NodeJS com Socket.io",
-  "main": "index.html",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/cairespezzoni/jogodavelha-ex/issues"
   },
-  "homepage": "https://github.com/cairespezzoni/jogodavelha-ex#readme"
+  "homepage": "https://github.com/cairespezzoni/jogodavelha-ex#readme",
+  "dependencies": {
+    "angular": "^1.6.3"
+  }
 }

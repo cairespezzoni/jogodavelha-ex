@@ -6,7 +6,23 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="css/style.css" rel="stylesheet">
     </head>
-    <body>
-        <h1>Jogo da Velha - Extreme</h1>
+    <body class="clearfix">
+        <header>
+            <div class="app-bar"><h1>Jogo da Velha</h1></title>
+        </header>
+
+        <div class="content">
+            <ng-view>
+            </ng-view>
+        </div>
+
+        <footer>
+            <div class="copyright">
+                2017 - Todos os direitos reservados para a Véia
+            </div>
+            <div class="desenvolvedor">
+                Desenvolvido por Caires Pezzoni
+            </div>
+        </footer>
     </body>
 </html>
