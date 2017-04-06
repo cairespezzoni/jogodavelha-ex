@@ -1,19 +1,88 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
     <head>
-        <title></title>
+        <title>Jogo da Véia</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <!-- Referencias AngularJS -->
+        <script src="node_modules\angular\angular.js"></script>
+        <script src="js/app.js"></script>
+        <script src="js/controladores/veiaCtrl.js"></script>
+
         <link href="css/style.css" rel="stylesheet">
+
+        <style>
+            
+            span {
+                border: solid 2px black;
+                display: block;
+                width: 100px;
+                height: 100px;
+            }
+
+            grid {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+                background: #8b8;
+                box-shadow: 2px 2px 15px #ddd;
+                margin: 10px auto;
+                min-width: 250px;
+                width: 400px;
+                max-width: 1000px;
+                box-sizing: border-box;
+                padding: 0 20px;
+            }
+
+            .grid div {
+                align-self: center;
+            }
+
+            grid .row {
+                display: flex;
+                flex-direction: row;
+            }
+
+            .espaco {
+                box-sizing: border-box;
+                background: #ffffff;
+                box-shadow: 1px 1px 2px #777, inset -1px -1px 2px #777;
+                width: 120px;
+                height: 120px;
+                min-width: 40px;
+                min-height: 40px;
+                margin: 5px;
+            }
+            .jogador1 { background: #ff7979; }
+            .jogador2 { background: #8181ff; }            
+
+        </style>
+
     </head>
-    <body class="clearfix">
+    <body ng-app="app" ng-controller="veiaCtrl" class="clearfix">
         <header>
             <div class="app-bar"><h1>Jogo da Velha</h1></title>
         </header>
 
         <div class="content">
-            <ng-view>
-            </ng-view>
+            <grid>
+                <div class="row">
+                    <span id="grid1" class="grid espaco" ng-class="{ jogador1: ativa1, jogador2: ativa2 }" ng-click="muda($index)"> 1 </span>
+                    <span id="grid2" class="grid espaco" ng-class="{ jogador1: ativa1, jogador2: ativa2 }" ng-click="muda()"> 2 </span>
+                    <span id="grid3" class="grid espaco" ng-class="{ jogador1: ativa1, jogador2: ativa2 }" ng-click="muda()"> 3 </span>
+                </div>
+                <div class="row">
+                    <span id="grid4" class="grid espaco" ng-class="{ jogador1: ativa1, jogador2: ativa2 }" ng-click="muda()"> 4 </span>
+                    <span id="grid5" class="grid espaco" ng-class="{ jogador1: ativa1, jogador2: ativa2 }" ng-click="muda()"> 5 </span>
+                    <span id="grid6" class="grid espaco" ng-class="{ jogador1: ativa1, jogador2: ativa2 }" ng-click="muda()"> 6 </span>
+                </div>
+                <div class="row">
+                    <span id="grid7" class="grid espaco" ng-class="{ jogador1: ativa1, jogador2: ativa2 }" ng-click="muda()"> 7 </span>
+                    <span id="grid8" class="grid espaco" ng-class="{ jogador1: ativa1, jogador2: ativa2 }" ng-click="muda()"> 8 </span>
+                    <span id="grid9" class="grid espaco" ng-class="{ jogador1: ativa1, jogador2: ativa2 }" ng-click="muda()"> 9 </span>
+                </div>
+            </grid>
         </div>
 
         <footer>
