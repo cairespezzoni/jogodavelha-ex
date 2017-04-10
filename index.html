@@ -7,8 +7,8 @@
         
         <!-- Referencias AngularJS -->
         <script src="node_modules\angular\angular.js"></script>
-        <script src="js/app.module.js"></script>
-        <script src="js/controladores/app.controller.js"></script>
+        <script src="js/app.js"></script>
+        <script src="js/controladores/veiaCtrl.js"></script>
 
         <link href="css/style.css" rel="stylesheet">
 
@@ -29,6 +29,9 @@
                     </span>
                 </div>
             </grid>
+            <p>
+                Jogador1: {{ jogador[0].ativo }} || Jogador2: {{ jogador[1].ativo }} || Vitória: {{ vitoria }}
+            </p>
         </div>
 
         <footer>
