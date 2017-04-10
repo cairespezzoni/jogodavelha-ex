@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/cairespezzoni/jogodavelha-ex#readme",
   "dependencies": {
-    "angular": "^1.6.3"
+    "angular": "^1.6.3",
+    "socket.io": "^1.7.3"
   }
 }
