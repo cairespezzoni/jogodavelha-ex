@@ -240,3 +240,44 @@ footer {
     float: right;
     margin-right: 2em;
 }
+
+/* ################################################ */
+
+span {
+    border: solid 2px black;
+    display: block;
+    width: 100px;
+    height: 100px;
+}
+
+grid {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    background: #ccc;
+    box-shadow: 2px 2px 15px #ddd;
+    margin: 10px auto;
+    min-width: 250px;
+    width: 400px;
+    max-width: 1000px;
+    box-sizing: border-box;
+    padding: 0 20px;
+}
+
+grid .row {
+    display: flex;
+    flex-direction: row;
+}
+
+.espaco {
+    box-sizing: border-box;
+    background: #ffffff;
+    box-shadow: 1px 1px 2px #777, inset -1px -1px 2px #777;
+    width: 120px;
+    height: 120px;
+    min-width: 40px;
+    min-height: 40px;
+    margin: 5px;
+}
+.jogador1 { background: #ff7979; }
+.jogador2 { background: #8181ff; }  
