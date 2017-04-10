@@ -1,7 +1,7 @@
 app.directive('grid', function () {
     var _grid = {
-        restrict: 'C',
-        templateUrl: '../html/grid.html',
+        restrict: 'E',
+        templateUrl: 'html/grid.html',
         replace: true
     };
     return _grid;

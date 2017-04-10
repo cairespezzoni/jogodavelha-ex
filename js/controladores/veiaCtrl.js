@@ -1,34 +1,50 @@
 app.controller('veiaCtrl', ['$scope', function($scope) {
 
+    // Armazena o estado atual do jogo. [0 = Vazio, 1 = Jogador1 e -1 = Jogador2]
     $scope.cerquilha = [[ 0, 0, 0],
                         [ 0, 0, 0],
                         [ 0, 0, 0]];
 
+    // Função que checa se um jogador ganhou o jogo ou não, chamada quando o jogador clica na célula
     var checaVitoria = function(n) {
+        // variável que armazena as possíveis configurações de vitória do jogo
         var _vitoria = [
-                        [[ n, n, n],  // if ($scope.cerquilha[0][0] = 1 &&
-                         [ 8, 8, 8],  //     $scope.cerquilha[0][1] = 1 &&
-                         [ 8, 8, 8]], //     $scope.cerquilha[0][2] = 1
+                        [[ n, n, n],
+                         [ 8, 8, 8],
+                         [ 8, 8, 8]],
                              
-                        [[ 8, 8, 8],  // if ($scope.cerquilha[1][0] = 1 &&
-                         [ n, n, n],  //     $scope.cerquilha[1][1] = 1 &&
-                         [ 8, 8, 8]], //     $scope.cerquilha[1][2] = 1
+                        [[ 8, 8, 8],
+                         [ n, n, n],
+                         [ 8, 8, 8]],
 
-                        [[ 8, 8, 8],  // if ($scope.cerquilha[2][0] = 1 &&
-                         [ 8, 8, 8],  //     $scope.cerquilha[2][1] = 1 &&
-                         [ n, n, n]], //     $scope.cerquilha[2][2] = 1
+                        [[ 8, 8, 8],
+                         [ 8, 8, 8],
+                         [ n, n, n]],
 
-                        [[ n, 8, 8],  // if ($scope.cerquilha[0][0] = 1 &&
-                         [ 8, n, 8],  //     $scope.cerquilha[1][1] = 1 &&
-                         [ 8, 8, n]], //     $scope.cerquilha[2][2] = 1
+                        [[ n, 8, 8],
+                         [ n, 8, 8],
+                         [ n, 8, 8]],
 
-                        [[ 8, 8, n],  // if ($scope.cerquilha[0][2] = 1 &&
-                         [ 8, n, 8],  //     $scope.cerquilha[1][1] = 1 &&
-                         [ n, 8, 8]]  //     $scope.cerquilha[2][0] = 1
+                        [[ 8, n, 8],
+                         [ 8, n, 8],
+                         [ 8, n, 8]],
+
+                        [[ 8, 8, n],
+                         [ 8, 8, n],
+                         [ 8, 8, n]],
+
+                        [[ n, 8, 8],
+                         [ 8, n, 8],
+                         [ 8, 8, n]],
+
+                        [[ 8, 8, n],
+                         [ 8, n, 8],
+                         [ n, 8, 8]] 
         ];
 
-        var _venceu = 0;
+        var _venceu = 0; // variável que compara o estado atual do jogo com as condições de vitória, determinado o vencedor.
 
+        // Compara o estado atual do jogo com o array de condições de vitória
         for (var condicao = 0; condicao < _vitoria.length; condicao++) {
             for (var linha = 0; linha < _vitoria[condicao].length; linha++) {
                 for (var coluna = 0; coluna < _vitoria[condicao][linha].length; coluna++) {
@@ -72,6 +88,7 @@ app.controller('veiaCtrl', ['$scope', function($scope) {
                 $scope.estilo[linha][coluna] = "jogador1";
                 if (checaVitoria(1)) {
                     $scope.vitoria = "Jogador 1";
+                    $scope.jogador[1] = false;
                 };
             } else if (!$scope.jogador[0].ativo && $scope.jogador[1].ativo) {
                 $scope.jogador[0].ativo = true;
@@ -80,6 +97,7 @@ app.controller('veiaCtrl', ['$scope', function($scope) {
                 $scope.estilo[linha][coluna] = "jogador2";
                 if (checaVitoria(-1)) {
                     $scope.vitoria = "Jogador 2";
+                    $scope.jogador[0] = false;
                 };
             };
         };
