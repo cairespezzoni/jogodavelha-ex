@@ -1,0 +1,13 @@
+<grid>
+    <div ng-repeat="linha in cerquilha track by $index" class="row">
+    <span ng-repeat="coluna in cerquilha[$index] track by $index" 
+        class="grid espaco" ng-class="estilo[$parent.$index][this.$index]" 
+        ng-click="muda($parent.$index, $index)"> 
+        <!-- {{ $parent.$index }}, {{ this.$index }} = {{ cerquilha[$parent.$index][this.$index] }} 
+        <br> {{ estilo[$parent.$index][this.$index] }} -->
+    </span>
+    </div>
+    <p>
+        Jogador1: {{ jogador[0].ativo }} || Jogador2: {{ jogador[1].ativo }} || Vitória: {{ vitoria }}
+    </p>
+</grid>

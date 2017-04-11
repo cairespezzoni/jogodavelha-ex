@@ -60,6 +60,7 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
 
         mostraTelaInicial: function() {
             // Exibir tela inicial
+            $scope.telaIntro = true;
         },
 
         Host: {
@@ -67,8 +68,8 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
             jogoNovo: false,
             numJogadoresNaSala: 0,
             
-            onCriarJogoClick: function() {
-                IO.socket.emit('hostCreateNewGame');
+            onCriarClick: function() {
+                IO.socket.emit('hostCriarNovoJogo');
             },
 
             iniciaJogo: function(data) {
@@ -113,6 +114,8 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
 
                 // Exibir nomes dos jogadores na tela
                 // Jogo.Host.players[X].jogadorNome
+
+                // Cara ou coroa deve ser executado aqui ou logo antes deste método
             },
 
             checaJogada: function(data) {
@@ -147,18 +150,18 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
             hostSocketId: '',
             meuNome: '',
 
-            onJoinClick: function() {
+            onEntrarClick: function() {
                 // Mostra a tela de se juntar a um jogo.
             },
 
-            onPlayerStartClick: function() {
+            onPlayerComecaClick: function() {
                 var data = {
                     gameId: '', // colher dados digitados pelo usuário
                     jogadorNome: '' || 'anonimo',
                     ativo: false
                 };
 
-                IO.socket.emit('playerJoinGame', data);
+                IO.socket.emit('playerEntraJogo', data);
 
                 Jogo.meuPapel = ['Player', 1];
                 Jogo.Player.meuNome = data.jogadorNome;
@@ -197,6 +200,8 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
             },
 
             jogoContagem: function(hostData) {
+                // O jogo é iniciado aqui!!
+                
                 Jogo.Player.hostSocketId = hostData.meuSocketId;
                 // mostrar mensagem de "Preparado?"
             },
@@ -207,13 +212,13 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
             }
         },
 
-        countDown: function(tempoIni, callback) {
+        contagem: function(tempoIni, callback) {
             
             $scope.contador = tempoIni;
 
-            var timer = setInterval(countItDown, 1000);
+            var timer = setInterval(contando, 1000);
 
-            function countItDown() {
+            function contando() {
                 $scope.contador -= 1;
 
                 if($scope.contador <= 0) {
@@ -227,4 +232,4 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
 
     init();
 
-}])();
+}]);
