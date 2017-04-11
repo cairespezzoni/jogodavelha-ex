@@ -88,7 +88,7 @@ app.controller('veiaCtrl', ['$scope', function($scope) {
                 $scope.estilo[linha][coluna] = "jogador1";
                 if (checaVitoria(1)) {
                     $scope.vitoria = "Jogador 1";
-                    $scope.jogador[1] = false;
+                    $scope.jogador[1].ativo = false;
                 };
             } else if (!$scope.jogador[0].ativo && $scope.jogador[1].ativo) {
                 $scope.jogador[0].ativo = true;
@@ -97,7 +97,7 @@ app.controller('veiaCtrl', ['$scope', function($scope) {
                 $scope.estilo[linha][coluna] = "jogador2";
                 if (checaVitoria(-1)) {
                     $scope.vitoria = "Jogador 2";
-                    $scope.jogador[0] = false;
+                    $scope.jogador[0].ativo = false;
                 };
             };
         };

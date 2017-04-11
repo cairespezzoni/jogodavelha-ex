@@ -216,7 +216,8 @@ nav a.ativo:link, nav a:hover {
 /* ###### Formatação padrão do Content ###### */
 
 .content {
-    padding-top: 10em;
+    padding-top: 6em;
+    text-align: center;
 }
 
 /* Formatação do Footer - Rodapé com duas colunas */

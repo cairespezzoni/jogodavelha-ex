@@ -22,7 +22,12 @@
             <div class="app-bar"><h1>Jogo da Velha</h1></title>
         </header>
 
-        <div ng-view class="content">
+        <div class="content">
+            <login>
+                <a class="button" href="" ng-click="Jogo.Host.onCreateClick()">Host</a>
+                <br>
+                <a class="button" href="" ng-click="Jogo.Player.onJoinClick()">Join</a>
+            </login>
             <grid>
                 <div ng-repeat="linha in cerquilha track by $index" class="row">
                 <span ng-repeat="coluna in cerquilha[$index] track by $index" 
@@ -31,10 +36,10 @@
                     <!-- {{ $parent.$index }}, {{ this.$index }} = {{ cerquilha[$parent.$index][this.$index] }} 
                     <br> {{ estilo[$parent.$index][this.$index] }} -->
                 </span>
-            </div>
-            <p>
-                Jogador1: {{ jogador[0].ativo }} || Jogador2: {{ jogador[1].ativo }} || Vitória: {{ vitoria }}
-            </p>
+                </div>
+                <p>
+                    Jogador1: {{ jogador[0].ativo }} || Jogador2: {{ jogador[1].ativo }} || Vitória: {{ vitoria }}
+                </p>
             </grid>
         </div>
 
