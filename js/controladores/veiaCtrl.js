@@ -1,7 +1,5 @@
 app.controller('veiaCtrl', ['$scope', function($scope) {
 
-    $scope.pagina = "html/intro.html";
-
     // Armazena o estado atual do jogo. [0 = Vazio, 1 = Jogador1 e -1 = Jogador2]
     $scope.cerquilha = [[ 0, 0, 0],
                         [ 0, 0, 0],
@@ -72,7 +70,7 @@ app.controller('veiaCtrl', ['$scope', function($scope) {
                         ["","",""],
                         ["","",""]];
 
-    $scope.jogador = [{
+    $scope.jogadores = [{
         nome: 'Jãozinho',
         ativo: true
     }, {

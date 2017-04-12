@@ -218,6 +218,7 @@ nav a.ativo:link, nav a:hover {
 .content {
     padding-top: 6em;
     text-align: center;
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 /* Formatação do Footer - Rodapé com duas colunas */
