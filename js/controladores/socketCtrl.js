@@ -1,19 +1,11 @@
 app.controller('socketCtrl', ['$scope', function ($scope) {
-    
-    $scope.jogadores = [{
-        nome: 'Jãozinho',
-        ativo: true
-    }, {
-        nome: 'Mariazinha',
-        ativo: false
-    }];
 
     // Métodos de envio/recebimento de dados via Socket.IO
     var IO = {
 
         init: function () {
             console.log('Iniciando socketCtrl');
-            IO.socket = io.connect('http://localhost:3000');
+            IO.socket = io.connect('http://192.168.10.248:3000');
             console.log(IO.socket);
             IO.escutandoEventos();
             $scope.pagina = "./html/intro.html";
@@ -22,7 +14,7 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
         escutandoEventos: function() {
             IO.socket.on('conectado', IO.onConectado);
             IO.socket.on('novoJogoCriado', IO.onNovoJogoCriado);
-            IO.socket.on('jogadorEntraSala', IO.jogadorEntraSala);
+            IO.socket.on('playerEntraSala', IO.playerEntraSala);
             IO.socket.on('iniciaNovoJogo', IO.iniciaNovoJogo);
             IO.socket.on('hostChecaJogada', IO.hostChecaJogada);
             IO.socket.on('gameOver', IO.gameOver);
@@ -38,22 +30,22 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
             $scope.Jogo.Host.iniciaJogo(data);
         },
 
-        jogadorEntraSala: function(data) {
-            $scope.Jogo[$scope.Jogo.meuPapel[0]].atualizaTelaEspera(data);
+        playerEntraSala: function(data) {
+            $scope.Jogo[$scope.Jogo.meuPapel].atualizaTelaEspera(data);
         },
 
         iniciaNovoJogo: function(data) {
-            $scope.Jogo[$scope.Jogo.meuPapel[0]].jogoContagem(data);
+            $scope.Jogo[$scope.Jogo.meuPapel].jogoContagem(data);
         },
 
         hostChecaJogada: function(data) {
-            if ($scope.Jogo.meuPapel[0] === 'Host') {
+            if ($scope.Jogo.meuPapel === 'Host') {
                 $scope.Jogo.Host.checaJogada(data);
             };
         },
 
         gameOver: function(data) {
-            $scope.Jogo[$scope.Jogo.meuPapel[0]].endGame(data);
+            $scope.Jogo[$scope.Jogo.meuPapel].endGame(data);
         },
 
         erro: function(data) {
@@ -63,7 +55,7 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
 
     $scope.Jogo = {
         gameId: 0,
-        meuPapel: ['', 0],
+        meuPapel: '',
         meuSocketId: '',
 
         init: function() {
@@ -76,7 +68,7 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
         },
 
         Host: {
-            //jogadores: [],
+            jogadores: [],
             jogoNovo: false,
             numJogadoresNaSala: 0,
             
@@ -87,7 +79,7 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
             iniciaJogo: function(data) {
                 $scope.Jogo.gameId = data.gameId;
                 $scope.Jogo.meuSocketId = data.meuSocketId;
-                $scope.Jogo.meuPapel = ['Host', 0];
+                $scope.Jogo.meuPapel = 'Host';
                 $scope.Jogo.Host.numJogadoresNaSala = 0;
 
                 $scope.Jogo.Host.mostraTelaNovoJogo();
@@ -103,14 +95,16 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
             },
 
             atualizaTelaEspera: function(data) {
+                console.log("Jogador " + data.jogadorNome + " entrou no jogo!");
+                
                 if ($scope.Jogo.Host.jogoNovo) {
                     $scope.Jogo.Host.mostraTelaNovoJogo();
                 };
 
                 // Adicionar novo jogador na tela de espera
-                console.log("Jogador " + data.jogadorNome + " entrou no jogo!");
-
-                $scope.jogadores[$scope.Jogo.meuPapel[1]].push(data);
+                $scope.Jogo.Host.jogadores.push(data);
+                //console.log($scope.Jogo.Host.jogadores);
+                $scope.$apply();
 
                 $scope.Jogo.Host.numJogadoresNaSala += 1;
 
@@ -164,26 +158,31 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
 
         Player: {
             hostSocketId: '',
-            meuNome: '',
+            gameId: undefined,
+            meuNome: 'Anônimo',
 
             onEntrarClick: function() {
-                console.log('Clicou para Entrar no jogo.');
+                console.log('Clicou para Entrar em um jogo.');
                 
                 // Mostra a tela de se juntar a um jogo.
                 $scope.pagina = './html/entrarJogo.html';
             },
 
             onPlayerComecaClick: function() {
+
+                console.log('Enviando dados do jogador para servidor...');
+
                 var data = {
-                    gameId: '', // colher dados digitados pelo usuário
-                    jogadorNome: '' || 'anonimo',
+                    gameId: $scope.Jogo.Player.gameId, // colher dados digitados pelo usuário
+                    jogadorNome: $scope.Jogo.Player.meuNome,
                     ativo: false
                 };
 
+                console.log(data);
+
                 IO.socket.emit('playerEntraJogo', data);
 
-                $scope.Jogo.meuPapel = ['Player', 1];
-                $scope.Jogo.Player.meuNome = data.jogadorNome;
+                $scope.Jogo.meuPapel = 'Player';
             },
 
             onPlayerJogadaClick: function() {
@@ -211,7 +210,7 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
 
             atualizaTelaEspera: function(data) {
                 if (IO.socket.sessionid === data.meuSocketId) {
-                    $scope.Jogo.meuPapel = ['Player', 1];
+                    $scope.Jogo.meuPapel = 'Player';
                     $scope.Jogo.gameId = data.gameId;
 
                     // Exibir mensagem de "Uniu ao jogo, aguardando novo jogo começar"

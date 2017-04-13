@@ -1,14 +1,14 @@
 <div class="info">
     <label for="inputJogadorNome">Nome:</label>
-    <input id="inputJogadorNome" type="text" ng-model="" />
+    <input id="inputJogadorNome" type="text" ng-model="Jogo.Player.meuNome" />
 </div>
 
 <div class="info">
     <label for="inputGameId">Game ID:</label>
-    <input id="inputGameId" type="text"/>
+    <input id="inputGameId" type="text" ng-model="Jogo.Player.gameId" />
 </div>
 
 <div class="info buttons">
-    <button id="btnStart" class="btn">Start</button>
+    <button id="btnStart" class="btn" ng-click="Jogo.Player.onPlayerComecaClick()">Start</button>
     <div id="playerWaitingMessage"></div>
 </div>

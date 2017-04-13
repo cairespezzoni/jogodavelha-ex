@@ -1,11 +1,12 @@
-<div class="info"><h2>Abra este site no seu celular:</h2></div>
+<div class="info"><h2> Abra este site no seu celular: </h2></div>
 <div id="jogoURL" class="infoBig"> {{ Jogo.Host.url }} </div>
 
 <div class="info">Clique <strong>ENTRAR</strong> e <br/> digite o seguinte Game ID:</div>
 <div id="gerarNovoGameId" class="gameId"> {{ Jogo.gameId }} </div>
 
 <div id="jogadoresEsperando">
+    <h3> Jogadores na Sala </h3>
     <ul>
-        <li ng-repeat="jogador in jogadores">{{ jogador.nome }}</li>
+        <li ng-repeat="jogador in Jogo.Host.jogadores">{{ jogador.jogadorNome }}</li>
     </ul>
 </div>
