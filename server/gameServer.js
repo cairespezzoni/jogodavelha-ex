@@ -4,7 +4,7 @@ var gameSocket;
 exports.initGame = function(sio, socket) {
     io = sio;
     gameSocket = socket;
-    gameSocket.emit('conectado', { message: "Você está conectado!"});
+    gameSocket.emit('conectado', { message: "Você está conectado!" });
     
     // Eventos Host
     gameSocket.on('hostCriarNovoJogo', hostCriarNovoJogo);
@@ -16,9 +16,12 @@ exports.initGame = function(sio, socket) {
     gameSocket.on('playerEntraJogo', playerEntraJogo);
     gameSocket.on('playerJogada', playerJogada);
     gameSocket.on('playerRestart', playerRestart);
+
+    // Eventos Jogo
+    gameSocket.on('playerIniciativa', playerIniciativa);
 }
 
-//--------------------------Funções do HOST
+//-------------------------- Funções do HOST ----------------------------
 // Clicou no botão 'START' e o evento hostCriarNovoJogo ocorreu.
 function hostCriarNovoJogo() {
     // Cria ID de sala Socket.IO único
@@ -36,7 +39,8 @@ function hostPreparaJogo(gameId) {
     var sock = this;
     var data = {
         meuSocketId: sock.id,
-        gameId: gameId
+        gameId: gameId,
+        tabuleiro: tabuleiro
     };
 
     console.log('Todos jogadores presentes. Preparando jogo...');
@@ -66,7 +70,6 @@ function hostProxJogada(data) {
    Tentativa de conectar-se a sala correspondente
    ao gameId digitado pelo jogador.*/
 function playerEntraJogo(data) {
-    
     console.log("Player tenta entrar no jogo...");
     // Referência ao objeto socket Socket.IO do jogador
     var sock = this;
@@ -82,15 +85,27 @@ function playerEntraJogo(data) {
         console.log(data.jogadorNome + ' entra na sala: ' + data.gameId);
         data.meuSocketId = sock.id;
 
+        // adiciona jogador ao array jogadores
+        jogadores.push({
+            nome: data.jogadorNome,
+            socketId: sock.id,
+            ativo: data.ativo
+        });
+        console.log(jogadores);
+
         // Entra na sala
         sock.join(data.gameId);
+
+        if (jogadores.length > 1) {
+            data.oponente = [ jogadores[jogadores.length - 2].nome, jogadores[jogadores.length - 1].nome ];
+        };
 
         // Emite um evento notificando os clientes que outro jogador entrou na sala.
         io.sockets.in(data.gameId).emit('playerEntraSala', data);
     } else {
         // Envia mensagem de erro ao de volta ao player
         console.log('Erro - Sala não exite!')
-        this.emit('erro', {message: "A sala não existe."});
+        this.emit('erro', { message: "A sala não existe." });
     }
 };
 
@@ -107,4 +122,62 @@ function playerRestart(data) {
     // Emite os dados do player de volta para os clientes na sala de jogo
     data.playerId = this.id;
     io.sockets.in(data.gameId).emit('jogadorEntraSala', data);
+};
+
+// ###############################################
+// ###            Jogo da Veia                 ###
+// ###############################################
+
+var tabuleiro = [[ 0, 0, 0],
+                 [ 0, 0, 0],
+                 [ 0, 0, 0]];
+
+//temp
+var n = 1;
+
+var vitoria =  [
+                [[ n, n, n],
+                 [ 8, 8, 8],
+                 [ 8, 8, 8]],
+                        
+                [[ 8, 8, 8],
+                 [ n, n, n],
+                 [ 8, 8, 8]],
+
+                [[ 8, 8, 8],
+                 [ 8, 8, 8],
+                 [ n, n, n]],
+
+                [[ n, 8, 8],
+                 [ n, 8, 8],
+                 [ n, 8, 8]],
+
+                [[ 8, n, 8],
+                 [ 8, n, 8],
+                 [ 8, n, 8]],
+
+                [[ 8, 8, n],
+                 [ 8, 8, n],
+                 [ 8, 8, n]],
+
+                [[ n, 8, 8],
+                 [ 8, n, 8],
+                 [ 8, 8, n]],
+
+                [[ 8, 8, n],
+                 [ 8, n, 8],
+                 [ n, 8, 8]] 
+];
+
+var venceu = 0;
+
+var jogadores = [];
+
+function playerIniciativa(gameId, player) {
+
+    // Marca o jogador que venceu a iniciativa como ativo
+    console.log(jogadores[player].socketId);
+    jogadores[player].ativo = true;
+
+    io.to(jogadores[player].socketId).emit('playerAguardaJogada');
 };

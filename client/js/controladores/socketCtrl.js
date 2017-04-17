@@ -19,6 +19,8 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
             IO.socket.on('hostChecaJogada', IO.hostChecaJogada);
             IO.socket.on('gameOver', IO.gameOver);
             IO.socket.on('erro', IO.erro);
+
+            IO.socket.on('playerAguardaJogada', IO.playerAguardaJogada);
         },
 
         onConectado: function() {
@@ -36,7 +38,7 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
 
         iniciaNovoJogo: function(data) {
             console.log('Começando novo jogo - ' + $scope.Jogo.meuPapel);
-            $scope.Jogo[$scope.Jogo.meuPapel].jogoSorteio(data);
+            $scope.Jogo[$scope.Jogo.meuPapel].playerSorteio(data);
         },
 
         hostChecaJogada: function(data) {
@@ -51,6 +53,12 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
 
         erro: function(data) {
             alert(data.message);
+        },
+
+
+        playerAguardaJogada: function() {
+            console.log('Minha vez de jogar...');
+            
         }
     };
 
@@ -58,6 +66,7 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
         gameId: 0,
         meuPapel: '',
         meuSocketId: '',
+        tabuleiro: [],
 
         init: function() {
             $scope.Jogo.mostraTelaInicial();
@@ -106,11 +115,12 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
                     // Adicionar novo jogador na tela de espera
                     $scope.Jogo.Host.jogadores.push(data);
                     console.log($scope.Jogo.Host.jogadores);
-
                     $scope.Jogo.Host.numJogadoresNaSala += 1;
 
                 } else if( $scope.Jogo.Host.numJogadoresNaSala === 2) {
-                    IO.socket.emit('hostSalaCheia', $scope.Jogo.gameId);
+                    $scope.Jogo.Host.jogadores.push(data);
+                    console.log($scope.Jogo.Host.jogadores);
+                    IO.socket.emit('hostSalaCheia', $scope.Jogo.gameId, nomeJogadores);
                 } else {
                     console.log('Sala cheia!!!!!');
                 };
@@ -119,18 +129,19 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
                 $scope.$apply();
             },
 
-            jogoSorteio : function() {
-
+            playerSorteio : function(data, nomeJogadores) {
+                
+                $scope.Jogo.tabuleiro = data.tabuleiro;
+                
                 // Mostrar nova tela  de contagem para início
-                console.log()
                 $scope.pagina = './html/grid.html';
-                $scope.Jogo.sorteio = true;
                 $scope.$apply();
 
-                // Começar contagem na tela (talvez)
-                //IO.socket.emit('hostContagemTerminada', $scope.Jogo.gameId);
+                // Gera um número aleatório entre 0 e 1
+                var iniciativa = Math.round(Math.random());
 
-                // Cara ou coroa deve ser executado aqui ou logo antes deste método
+                // Envia ao servidor o resultado da Iniciativa
+                IO.socket.emit('playerIniciativa', $scope.Jogo.gameId, iniciativa);
             },
 
             checaJogada: function(data) {
@@ -177,17 +188,20 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
 
                 console.log('Enviando dados do jogador para servidor...');
 
-                var data = {
-                    gameId: $scope.Jogo.Player.gameId, // colher dados digitados pelo usuário
-                    jogadorNome: $scope.Jogo.Player.meuNome,
-                    ativo: false
-                };
+                if ($scope.Jogo.Player.meuNome) {
+                    var data = {
+                        gameId: $scope.Jogo.Player.gameId, // colher dados digitados pelo usuário
+                        jogadorNome: $scope.Jogo.Player.meuNome,
+                        ativo: false,
+                        oponente: ''
+                    };
 
-                console.log(data);
+                    console.log(data);
 
-                IO.socket.emit('playerEntraJogo', data);
+                    IO.socket.emit('playerEntraJogo', data);
 
-                $scope.Jogo.meuPapel = 'Player';
+                    $scope.Jogo.meuPapel = 'Player';
+                }
             },
 
             onPlayerJogadaClick: function() {
@@ -219,49 +233,37 @@ app.controller('socketCtrl', ['$scope', function ($scope) {
                     $scope.Jogo.meuPapel = 'Player';
                     $scope.Jogo.gameId = data.gameId;
 
+                    console.log(data.oponente[0]);
+                    $scope.Jogo.Player.nomeOponente = data.oponente[0];
+
                     // Exibir mensagem de "Uniu ao jogo, aguardando novo jogo começar"
                     $scope.Jogo.listaEspera = true;
-                    console.log('lista de espera: ' + $scope.Jogo.listaEspera);
-                }   
+                    console.log('Lista de espera: ' + $scope.Jogo.listaEspera);
+                } else {
+                    console.log(data.oponente[1]);
+                    $scope.Jogo.Player.nomeOponente = data.oponente[1];
+                };
             },
 
-            jogoSorteio : function(hostData) {
-                console.log($scope.Jogo.meuSocketId);
-                $scope.pagina = '/html/grid.html';
-                $scope.Jogo.Player.hostSocketId = hostData.meuSocketId;
+            playerSorteio : function(data, nomeJogadores) {
+                $scope.Jogo.tabuleiro = data.tabuleiro;
+                $scope.pagina = './html/grid.html';
+                $scope.Jogo.Player.hostSocketId = data.meuSocketId;
+
+                if (IO.socket.id === data.meuSocketId) {
+                    $scope.Jogo.Player.nomeOponente = nomeJogadores[1];
+                } else {
+                    $scope.Jogo.Player.nomeOponente = nomeJogadores[0];
+                };
+
                 $scope.$apply();
             },
-
-            /*contagem: function(hostData) {
-                // O $scope.Jogo é iniciado aqui!!
-                
-                $scope.Jogo.Player.hostSocketId = hostData.meuSocketId;
-                // mostrar mensagem de "Preparado?"
-            },*/
 
             endGame: function() {
                 // mostrar mensagem de fim de jogo com opções de
                 // Reiniciar ou Quitar
             }
-        }/*,
-
-        contagem: function(tempoIni, callback) {
-            
-            $scope.contador = tempoIni;
-
-            var timer = setInterval(contando, 1000);
-
-            function contando() {
-                $scope.contador -= 1;
-
-                if($scope.contador <= 0) {
-                    clearInterval(timer);
-                    callback();
-                    return;
-                }
-            }
-        }*/
-
+        }
     };
 
     IO.init();
