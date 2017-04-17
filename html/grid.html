@@ -1,13 +1,23 @@
-<grid>
+<!--
+="cara-coroa" ng-show="Jogo.sorteio">
+    <div id="cara-coroa-p1">
+        <h3>{{ Jogo.Host.jogadores[0].nomeJogador }} começa o jogo!</h3>
+    </div>
+    <div id="cara-coroa-p2">
+        <h3>{{ Jogo.Host.jogadores[1].nomeJogador }} começa o jogo!</h3>
+    </div>
+</div>
+-->
+<grid ng-controller="veiaCtrl">
     <div ng-repeat="linha in cerquilha track by $index" class="row">
         <span ng-repeat="coluna in cerquilha[$index] track by $index" 
             class="grid espaco" ng-class="estilo[$parent.$index][this.$index]" 
             ng-click="muda($parent.$index, $index)"> 
-            <!-- {{ $parent.$index }}, {{ this.$index }} = {{ cerquilha[$parent.$index][this.$index] }} 
-            <br> {{ estilo[$parent.$index][this.$index] }} -->
+            {{ $parent.$index }}, {{ this.$index }} = {{ cerquilha[$parent.$index][this.$index] }} 
+            <br> {{ estilo[$parent.$index][this.$index] }}
         </span>
     </div>
     <p>
-        Jogador1: {{ jogador[0].ativo }} || Jogador2: {{ jogador[1].ativo }} || Vitória: {{ vitoria }}
+        {{ Jogo.Host.jogadores[0].nomeJogador }}: {{ Jogo.Host.jogadores[0].ativo }} || {{ Jogo.Host.jogadores[1].nomeJogador }}: {{ jogador[1].ativo }} || Vitória: {{ vitoria }}
     </p>
 </grid>

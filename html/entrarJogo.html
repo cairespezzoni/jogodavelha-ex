@@ -9,6 +9,6 @@
 </div>
 
 <div class="info buttons">
-    <button id="btnStart" class="btn" ng-click="Jogo.Player.onPlayerComecaClick()">Start</button>
-    <div id="playerWaitingMessage"></div>
+    <button id="btnEntrar" class="btn" ng-hide="Jogo.listaEspera" ng-click="Jogo.Player.onPlayerComecaClick()">Entrar</button>
+    <div ng-show="Jogo.listaEspera" id="jogadorMensagemEspera">Aguardando oponente...</div>
 </div>
