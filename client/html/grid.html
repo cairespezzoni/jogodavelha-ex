@@ -1,23 +1,23 @@
 <!--
-<div id="cara-coroa" ng-show="Jogo.sorteio">
+<div id="cara-coroa" ng-show="socket.Jogo.sorteio">
     <div id="cara-coroa-p1">
-        <h3>{{ Jogo.Player.meuNome }} começa o jogo!</h3>
+        <h3>{{ socket.Jogo.Player.meuNome }} começa o jogo!</h3>
     </div>
     <div id="cara-coroa-p2">
-        <h3>{{ Jogo.Player.nomeOponente }} começa o jogo!</h3>
+        <h3>{{ socket.Jogo.Player.nomeOponente }} começa o jogo!</h3>
     </div>
 </div>
 -->
-<grid ng-controller="veiaCtrl">
-    <div ng-repeat="linha in Jogo.tabuleiro track by $index" class="row">
-        <span ng-repeat="coluna in Jogo.tabuleiro[$index] track by $index" 
-            class="grid espaco" ng-class="estilo[$parent.$index][this.$index]" 
-            ng-click="muda($parent.$index, $index)"> 
-            {{ $parent.$index }}, {{ this.$index }} = {{ Jogo.tabuleiro[$parent.$index][this.$index] }} 
-            <br> {{ estilo[$parent.$index][this.$index] }}
+<grid ng-controller="VeiaCtrl as veia">
+    <div ng-repeat="linha in socket.Jogo.tabuleiro track by $index" class="row">
+        <span ng-repeat="coluna in socket.Jogo.tabuleiro[$index] track by $index" 
+            class="grid espaco" ng-class="veia.estilo[$parent.$index][this.$index]" 
+            ng-click="veia.muda($parent.$index, $index)"> 
+            {{ $parent.$index }}, {{ this.$index }} = {{ socket.Jogo.tabuleiro[$parent.$index][this.$index] }} 
+            <br> {{ veia.estilo[$parent.$index][this.$index] }}
         </span>
     </div>
     <p>
-        {{ Jogo.Player.meuNome }}: {{ Jogo.Host.jogadores[0].ativo }} || {{ Jogo.Player.nomeOponente }}: {{ jogador[1].ativo }} || Vitória: {{ vitoria }}
+        {{ socket.Jogo.Player.meuNome }} || {{ socket.Jogo.Player.nomeOponente }} || Vitória: {{ veia.vitoria }}
     </p>
 </grid>

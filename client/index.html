@@ -21,7 +21,7 @@
         <link href="./css/style.css" rel="stylesheet">
 
     </head>
-    <body ng-app="app" ng-controller="socketCtrl" class="clearfix" ng-class="[{jogador1: jogador[0].ativo && !jogador[1].ativo}, {jogador2: !jogador[0].ativo && jogador[1].ativo}]">
+    <body ng-app="app" ng-controller="SocketCtrl as socket" class="clearfix" ng-class="[{jogador1: socket.jogador[0].ativo && !socket.jogador[1].ativo}, {jogador2: !socket.jogador[0].ativo && socket.jogador[1].ativo}]">
         <header>
             <div class="app-bar"><h1>Jogo da Velha - {{ pagina }}</h1></title>
         </header>
