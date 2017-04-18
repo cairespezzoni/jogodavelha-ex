@@ -1,17 +1,17 @@
 <div class="info">
     <label for="inputJogadorNome">Nome:</label>
-    <input id="inputJogadorNome" type="text" ng-model="socket.Jogo.Player.meuNome" />
+    <input id="inputJogadorNome" type="text" ng-model="vm.Jogo.Player.meuNome" />
 </div>
 
 <div class="info">
     <label for="inputGameId">Game ID:</label>
-    <input id="inputGameId" type="text" ng-model="socket.Jogo.Player.gameId" />
+    <input id="inputGameId" type="text" ng-model="vm.Jogo.Player.gameId" />
 </div>
 
 <div class="info buttons">
-    <button id="btnEntrar" classbeopars="btn" ng-hide="socket.Jogo.listaEspera" ng-click="socket.Jogo.Player.onPlayerComecaClick()">Entrar</button>
+    <button id="btnEntrar" classbeopars="btn" ng-hide="vm.Jogo.listaEspera" ng-click="vm.Jogo.Player.onPlayerComecaClick()">Entrar</button>
 </div>
 
 <div class="info">
-    <div ng-show="socket.Jogo.listaEspera" id="jogadorMensagemEspera">Aguardando oponente...</div>
+    <div ng-show="vm.Jogo.listaEspera" id="jogadorMensagemEspera">Aguardando oponente...</div>
 </div>

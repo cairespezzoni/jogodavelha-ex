@@ -86,18 +86,33 @@ function playerEntraJogo(data) {
         data.meuSocketId = sock.id;
 
         // adiciona jogador ao array jogadores
+        if (!jogadores.length) {
+            jogadores[0] = {
+                nome: data.jogadorNome,
+                socketId: sock.id,
+                ativo: data.ativo
+            };
+        } else {
+            jogadores[1] = {
+                nome: data.jogadorNome,
+                socketId: sock.id,
+                ativo: data.ativo
+            };
+        };
+/*
         jogadores.push({
             nome: data.jogadorNome,
             socketId: sock.id,
             ativo: data.ativo
         });
+*/
         console.log(jogadores);
 
         // Entra na sala
         sock.join(data.gameId);
 
         if (jogadores.length > 1) {
-            data.oponente = [ jogadores[jogadores.length - 2].nome, jogadores[jogadores.length - 1].nome ];
+            data.oponente = [ jogadores[0].nome, jogadores[1].nome ];
         };
 
         // Emite um evento notificando os clientes que outro jogador entrou na sala.
@@ -134,40 +149,6 @@ var tabuleiro = [[ 0, 0, 0],
 
 //temp
 var n = 1;
-
-var vitoria =  [
-                [[ n, n, n],
-                 [ 8, 8, 8],
-                 [ 8, 8, 8]],
-                        
-                [[ 8, 8, 8],
-                 [ n, n, n],
-                 [ 8, 8, 8]],
-
-                [[ 8, 8, 8],
-                 [ 8, 8, 8],
-                 [ n, n, n]],
-
-                [[ n, 8, 8],
-                 [ n, 8, 8],
-                 [ n, 8, 8]],
-
-                [[ 8, n, 8],
-                 [ 8, n, 8],
-                 [ 8, n, 8]],
-
-                [[ 8, 8, n],
-                 [ 8, 8, n],
-                 [ 8, 8, n]],
-
-                [[ n, 8, 8],
-                 [ 8, n, 8],
-                 [ 8, 8, n]],
-
-                [[ 8, 8, n],
-                 [ 8, n, 8],
-                 [ n, 8, 8]] 
-];
 
 var venceu = 0;
 

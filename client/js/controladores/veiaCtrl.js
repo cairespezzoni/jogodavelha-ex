@@ -5,7 +5,8 @@
         .module('app')
         .controller('VeiaCtrl', VeiaCtrl);
     
-    function VeiaCtrl() {
+    VeiaCtrl.inject = ['$scope'];
+    function VeiaCtrl($scope) {
 
         // Armazena o estado atual do jogo. [0 = Vazio, 1 = Jogador1 e -1 = Jogador2]
         $scope.cerquilha = [[ 0, 0, 0],

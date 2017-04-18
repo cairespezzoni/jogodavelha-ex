@@ -5,7 +5,8 @@
         .module('app')
         .controller('SocketCtrl', SocketCtrl);
 
-    function SocketCtrl() {
+    SocketCtrl.inject = ['$scope'];
+    function SocketCtrl($scope) {
 
         var vm = this;
 
@@ -15,7 +16,6 @@
             init: function () {
                 console.log('Iniciando socketCtrl');
                 IO.socket = io.connect('http://192.168.10.248:3000');
-                console.log(IO.socket);
                 IO.escutandoEventos();
                 vm.pagina = "./html/intro.html";
             },
@@ -33,31 +33,31 @@
             },
 
             onConectado: function() {
-                console.log('SessionId: ' + IO.socket.sessionid);
-                $scope.Jogo.meuSocketId = IO.socket.sessionid;
+                //console.log('SessionId: ' + IO.socket.sessionid);
+                vm.Jogo.meuSocketId = IO.socket.sessionid;
             },
 
             onNovoJogoCriado: function(data) {
-                $scope.Jogo.Host.iniciaJogo(data);
+                vm.Jogo.Host.iniciaJogo(data);
             },
 
             playerEntraSala: function(data) {
-                $scope.Jogo[$scope.Jogo.meuPapel].atualizaTelaEspera(data);
+                vm.Jogo[vm.Jogo.meuPapel].atualizaTelaEspera(data);
             },
 
             iniciaNovoJogo: function(data) {
-                console.log('Começando novo jogo - ' + $scope.Jogo.meuPapel);
-                $scope.Jogo[$scope.Jogo.meuPapel].playerSorteio(data);
+                console.log('Começando novo jogo - ' + vm.Jogo.meuPapel);
+                vm.Jogo[vm.Jogo.meuPapel].playerSorteio(data);
             },
 
             hostChecaJogada: function(data) {
-                if ($scope.Jogo.meuPapel === 'Host') {
-                    $scope.Jogo.Host.checaJogada(data);
+                if (vm.Jogo.meuPapel === 'Host') {
+                    vm.Jogo.Host.checaJogada(data);
                 };
             },
 
             gameOver: function(data) {
-                $scope.Jogo[$scope.Jogo.meuPapel].endGame(data);
+                vm.Jogo[vm.Jogo.meuPapel].endGame(data);
             },
 
             erro: function(data) {
@@ -71,20 +71,11 @@
             }
         };
 
-        $scope.Jogo = {
+        vm.Jogo = {
             gameId: 0,
             meuPapel: '',
             meuSocketId: '',
             tabuleiro: [],
-
-            init: function() {
-                $scope.Jogo.mostraTelaInicial();
-            },
-
-            mostraTelaInicial: function() {
-                // Exibir tela inicial
-                $scope.telaIntro = true;
-            },
 
             Host: {
                 jogadores: [],
@@ -96,83 +87,84 @@
                 },
 
                 iniciaJogo: function(data) {
-                    $scope.Jogo.gameId = data.gameId;
-                    $scope.Jogo.meuSocketId = data.meuSocketId;
-                    $scope.Jogo.meuPapel = 'Host';
-                    $scope.Jogo.Host.numJogadoresNaSala = 0;
+                    vm.Jogo.gameId = data.gameId;
+                    vm.Jogo.meuSocketId = data.meuSocketId;
+                    vm.Jogo.meuPapel = 'Host';
+                    vm.Jogo.Host.numJogadoresNaSala = 0;
 
-                    $scope.Jogo.Host.mostraTelaNovoJogo();
+                    vm.Jogo.Host.mostraTelaNovoJogo();
                 },
 
                 mostraTelaNovoJogo: function() {
                     // Exibir tela de jogo novo
-                    $scope.pagina = "./html/novoJogo.html";
+                    vm.pagina = "./html/novoJogo.html";
 
                     // Exibir URL e Jogo.gameId para que o outro jogador possa pegar o código
-                    $scope.Jogo.Host.url = window.location.href;
+                    vm.Jogo.Host.url = window.location.href;
                 },
 
                 
                 atualizaTelaEspera : function(data) {
                     console.log("Jogador " + data.jogadorNome + " entrou no jogo!");
                     
-                    if ($scope.Jogo.Host.jogoNovo) {
-                        $scope.Jogo.Host.mostraTelaNovoJogo();
+                    if (vm.Jogo.Host.jogoNovo) {
+                        vm.Jogo.Host.mostraTelaNovoJogo();
                     };
 
-                    if( $scope.Jogo.Host.numJogadoresNaSala < 2) {
+                    if( vm.Jogo.Host.numJogadoresNaSala < 2) {
                         // Adicionar novo jogador na tela de espera
-                        $scope.Jogo.Host.jogadores.push(data);
-                        console.log($scope.Jogo.Host.jogadores);
-                        $scope.Jogo.Host.numJogadoresNaSala += 1;
+                        vm.Jogo.Host.jogadores.push(data);
+                        console.log(vm.Jogo.Host.jogadores);
+                        vm.Jogo.Host.numJogadoresNaSala += 1;
 
-                    } else if( $scope.Jogo.Host.numJogadoresNaSala === 2) {
-                        $scope.Jogo.Host.jogadores.push(data);
-                        console.log($scope.Jogo.Host.jogadores);
-                        IO.socket.emit('hostSalaCheia', $scope.Jogo.gameId, nomeJogadores);
+                    } else if( vm.Jogo.Host.numJogadoresNaSala === 2) {
+                        vm.Jogo.Host.jogadores.push(data);
+                        console.log(vm.Jogo.Host.jogadores);
+                        IO.socket.emit('hostSalaCheia', vm.Jogo.gameId);
                     } else {
                         console.log('Sala cheia!!!!!');
                     };
 
-                    $scope.Jogo.Host.numJogadoresNaSala += 1;
+                    vm.Jogo.Host.numJogadoresNaSala += 1;
+
                     $scope.$apply();
                 },
 
-                playerSorteio : function(data, nomeJogadores) {
+                playerSorteio : function(data) {
                     
-                    $scope.Jogo.tabuleiro = data.tabuleiro;
+                    vm.Jogo.tabuleiro = data.tabuleiro;
                     
                     // Mostrar nova tela  de contagem para início
-                    $scope.pagina = './html/grid.html';
+                    vm.pagina = './html/grid.html';
                     $scope.$apply();
 
                     // Gera um número aleatório entre 0 e 1
                     var iniciativa = Math.round(Math.random());
 
                     // Envia ao servidor o resultado da Iniciativa
-                    IO.socket.emit('playerIniciativa', $scope.Jogo.gameId, iniciativa);
+                    IO.socket.emit('playerIniciativa', vm.Jogo.gameId, iniciativa);
                 },
 
                 checaJogada: function(data) {
                     var data = {
-                        gameId: $scope.Jogo.gameId,
+                        gameId: vm.Jogo.gameId,
                     }
 
                     IO.socket.emit('hostProxJogada', data);
                 },
                 
                 endGame: function(data) {
-                    var p1 = $scope.jogadores[0];
+                    var p1 = vm.jogadores[0];
                     var p1Name = p1.nome;
 
-                    var p2 = $scope.jogadores[1];
+                    var p2 = vm.jogadores[1];
                     var p2Name = p2.nome;
 
                     // Encontrar quem foi o vencedor.
 
                     // Mostrar vencedor (ou mensagem de empate)
-                    $scope.Jogo.Host.numJogadoresNaSala = 0;
-                    $scope.Jogo.Host.jogoNovo = true;
+                    vm.Jogo.Host.numJogadoresNaSala = 0;
+                    vm.Jogo.Host.jogoNovo = true;
                 },
 
                 restartGame: function() {
@@ -190,17 +182,17 @@
                     console.log('Clicou para Entrar em um jogo.');
                     
                     // Mostra a tela de se juntar a um jogo.
-                    $scope.pagina = './html/entrarJogo.html';
+                    vm.pagina = './html/entrarJogo.html';
                 },
 
                 onPlayerComecaClick: function() {
 
                     console.log('Enviando dados do jogador para servidor...');
 
-                    if ($scope.Jogo.Player.meuNome) {
+                    if (vm.Jogo.Player.meuNome) {
                         var data = {
-                            gameId: $scope.Jogo.Player.gameId, // colher dados digitados pelo usuário
-                            jogadorNome: $scope.Jogo.Player.meuNome,
+                            gameId: vm.Jogo.Player.gameId, // colher dados digitados pelo usuário
+                            jogadorNome: vm.Jogo.Player.meuNome,
                             ativo: false,
                             oponente: ''
                         };
@@ -209,7 +201,7 @@
 
                         IO.socket.emit('playerEntraJogo', data);
 
-                        $scope.Jogo.meuPapel = 'Player';
+                        vm.Jogo.meuPapel = 'Player';
                     }
                 },
 
@@ -218,8 +210,8 @@
                     var jogada = '';
 
                     var data = {
-                        gameId: $scope.Jogo.gameId,
-                        playerId: $scope.Jogo.meuSocketId,
+                        gameId: vm.Jogo.gameId,
+                        playerId: vm.Jogo.meuSocketId,
                         jogada: jogada
                     };
                     
@@ -228,8 +220,8 @@
 
                 onPlayerRestart: function() {
                     var data = {
-                        gameId: $scope.Jogo.gameId,
-                        jogadorNome: $scope.Jogo.Player.meuNome
+                        gameId: vm.Jogo.gameId,
+                        jogadorNome: vm.Jogo.Player.meuNome
                     };
 
                     IO.socket.emit('playerRestart', data);
@@ -239,31 +231,24 @@
                 atualizaTelaEspera: function(data) {
                     console.log(IO.socket.id + ' = ' + data.meuSocketId);
                     if (IO.socket.id === data.meuSocketId) {
-                        $scope.Jogo.meuPapel = 'Player';
-                        $scope.Jogo.gameId = data.gameId;
+                        vm.Jogo.meuPapel = 'Player';
+                        vm.Jogo.gameId = data.gameId;
 
-                        console.log(data.oponente[0]);
-                        $scope.Jogo.Player.nomeOponente = data.oponente[0];
+                        vm.Jogo.Player.nomeOponente = data.oponente[0];
 
                         // Exibir mensagem de "Uniu ao jogo, aguardando novo jogo começar"
-                        $scope.Jogo.listaEspera = true;
-                        console.log('Lista de espera: ' + $scope.Jogo.listaEspera);
+                        vm.Jogo.listaEspera = true;
+                        console.log('Lista de espera: ' + vm.Jogo.listaEspera);
                     } else {
                         console.log(data.oponente[1]);
-                        $scope.Jogo.Player.nomeOponente = data.oponente[1];
+                        vm.Jogo.Player.nomeOponente = data.oponente[1];
                     };
                 },
 
-                playerSorteio : function(data, nomeJogadores) {
-                    $scope.Jogo.tabuleiro = data.tabuleiro;
-                    $scope.pagina = './html/grid.html';
-                    $scope.Jogo.Player.hostSocketId = data.meuSocketId;
-
-                    if (IO.socket.id === data.meuSocketId) {
-                        $scope.Jogo.Player.nomeOponente = nomeJogadores[1];
-                    } else {
-                        $scope.Jogo.Player.nomeOponente = nomeJogadores[0];
-                    };
+                playerSorteio : function(data) {
+                    vm.Jogo.tabuleiro = data.tabuleiro;
+                    vm.pagina = './html/grid.html';
+                    vm.Jogo.Player.hostSocketId = data.meuSocketId;
 
                     $scope.$apply();
                 },
@@ -276,6 +261,6 @@
         };
 
         IO.init();
-        $scope.Jogo.init();
+        //vm.Jogo.init();
     }
 })();
