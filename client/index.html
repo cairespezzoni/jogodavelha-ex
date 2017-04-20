@@ -23,10 +23,10 @@
     </head>
     <body ng-app="app" ng-controller="SocketCtrl as vm" class="clearfix" ng-class="[{jogador1: socket.jogador[0].ativo && !socket.jogador[1].ativo}, {jogador2: !socket.jogador[0].ativo && socket.jogador[1].ativo}]">
         <header>
-            <div class="app-bar"><h1>Jogo da Velha - {{ vm.pagina }}</h1></title>
+            <div class="app-bar"><h1>Jogo da Velha - {{ vm.info.pagina }}</h1></title>
         </header>
         
-        <div class="content" ng-include="vm.pagina">
+        <div class="content" ng-include="vm.info.pagina">
         </div>
         
         <footer>

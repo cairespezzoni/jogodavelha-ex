@@ -26,6 +26,7 @@ exports.initGame = function(sio, socket) {
 function hostCriarNovoJogo() {
     // Cria ID de sala Socket.IO único
     var thisGameId = (Math.random() * 100000) | 0;
+    var jogadores = [];
 
     // Retorna o ID da sala (gameId) e o socket ID (meuSocketId) para o cliente
     this.emit('novoJogoCriado', {gameId: thisGameId, meuSocketId: this.id});
@@ -35,16 +36,22 @@ function hostCriarNovoJogo() {
 };
 
 // Dois jogadores entraram no jogo, alerte o host!
-function hostPreparaJogo(gameId) {
+function hostPreparaJogo(playersdata) {
     var sock = this;
     var data = {
-        meuSocketId: sock.id,
-        gameId: gameId,
+        hostSocketId: sock.id,
+        gameId: playersdata.gameId,
+        jogador1: playersdata.jogador1,
+        jogador2: playersdata.jogador2,
         tabuleiro: tabuleiro
     };
 
     console.log('Todos jogadores presentes. Preparando jogo...');
+    console.log(data);
     io.sockets.in(data.gameId).emit('iniciaNovoJogo', data);
+
+    io.to(data.jogador1.socketId).emit('cadastraOponente', data.jogador2.nome);
+    io.to(data.jogador2.socketId).emit('cadastraOponente', data.jogador1.nome);
 };
 
 // Contador terminou, o jogo começa!
@@ -74,52 +81,25 @@ function playerEntraJogo(data) {
     // Referência ao objeto socket Socket.IO do jogador
     var sock = this;
 
-    console.log(gameSocket.adapter.rooms);
-
-    // Procurando ID da sala no manager do objeto Socket.IO
+    // Procurando ID da sala no objeto Socket.IO
     var sala = gameSocket.adapter.rooms[data.gameId];
 
     // Se a sala existir
     if (sala != undefined) {
         // conecta socket id ao data object
-        console.log(data.jogadorNome + ' entra na sala: ' + data.gameId);
-        data.meuSocketId = sock.id;
-
-        // adiciona jogador ao array jogadores
-        if (!jogadores.length) {
-            jogadores[0] = {
-                nome: data.jogadorNome,
-                socketId: sock.id,
-                ativo: data.ativo
-            };
-        } else {
-            jogadores[1] = {
-                nome: data.jogadorNome,
-                socketId: sock.id,
-                ativo: data.ativo
-            };
-        };
-/*
-        jogadores.push({
-            nome: data.jogadorNome,
-            socketId: sock.id,
-            ativo: data.ativo
-        });
-*/
-        console.log(jogadores);
+        console.log(data.nome + ' entra na sala: ' + data.gameId);
+        data.socketId = sock.id;
+        console.log(data);
 
         // Entra na sala
         sock.join(data.gameId);
 
-        if (jogadores.length > 1) {
-            data.oponente = [ jogadores[0].nome, jogadores[1].nome ];
-        };
-
         // Emite um evento notificando os clientes que outro jogador entrou na sala.
         io.sockets.in(data.gameId).emit('playerEntraSala', data);
+
     } else {
         // Envia mensagem de erro ao de volta ao player
-        console.log('Erro - Sala não exite!')
+        console.log('Erro - Sala não exite!');
         this.emit('erro', { message: "A sala não existe." });
     }
 };

@@ -9,15 +9,15 @@
 </div>
 -->
 <grid ng-controller="VeiaCtrl as veia">
-    <div ng-repeat="linha in vm.Jogo.tabuleiro track by $index" class="row">
-        <span ng-repeat="coluna in vm.Jogo.tabuleiro[$index] track by $index" 
+    <div ng-repeat="linha in vm.info.tabuleiro track by $index" class="row">
+        <span ng-repeat="coluna in vm.info.tabuleiro[$index] track by $index" 
             class="grid espaco" ng-class="veia.estilo[$parent.$index][this.$index]" 
             ng-click="veia.muda($parent.$index, $index)"> 
-            {{ $parent.$index }}, {{ this.$index }} = {{ vm.Jogo.tabuleiro[$parent.$index][this.$index] }} 
+            {{ $parent.$index }}, {{ this.$index }} = {{ vm.info.tabuleiro[$parent.$index][this.$index] }} 
             <br> {{ veia.estilo[$parent.$index][this.$index] }}
         </span>
     </div>
     <p>
-        {{ vm.Jogo.Player.meuNome }} || {{ vm.Jogo.Player.nomeOponente }} || Vitória: {{ veia.vitoria }}
+        {{ vm.info.nome }} || {{ vm.info.oponente }} || Vitória: {{ veia.vitoria }}
     </p>
 </grid>
