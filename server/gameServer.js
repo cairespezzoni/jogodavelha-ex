@@ -26,32 +26,47 @@ exports.initGame = function(sio, socket) {
 function hostCriarNovoJogo() {
     // Cria ID de sala Socket.IO único
     var thisGameId = (Math.random() * 100000) | 0;
-    var jogadores = [];
 
-    // Retorna o ID da sala (gameId) e o socket ID (meuSocketId) para o cliente
-    this.emit('novoJogoCriado', {gameId: thisGameId, meuSocketId: this.id});
+    // Retorna o ID da sala (gameId) e o socket ID (hostSocketId) para o cliente
+    this.emit('novoJogoCriado', {gameId: thisGameId, hostSocketId: this.id} );
+
+    // Adicionando dados do host ao Back-End
+    jogo[thisGameId] = { hostId: this.id, jogador: [], tabuleiro: tabuleiro };
+    console.log("Jogos Ativos: ");
+    console.log(jogo);
 
     // Entra na sala e espera pelos jogadores
     this.join(thisGameId.toString());
 };
 
 // Dois jogadores entraram no jogo, alerte o host!
-function hostPreparaJogo(playersdata) {
+function hostPreparaJogo(gameId) {
     var sock = this;
     var data = {
-        hostSocketId: sock.id,
-        gameId: playersdata.gameId,
-        jogador1: playersdata.jogador1,
-        jogador2: playersdata.jogador2,
-        tabuleiro: tabuleiro
+        gameId: gameId,
+        tabuleiro: jogo[gameId].tabuleiro
     };
 
     console.log('Todos jogadores presentes. Preparando jogo...');
-    console.log(data);
-    io.sockets.in(data.gameId).emit('iniciaNovoJogo', data);
+    io.sockets.in(gameId).emit('sorteiaIniciativa', data);
 
-    io.to(data.jogador1.socketId).emit('cadastraOponente', data.jogador2.nome);
-    io.to(data.jogador2.socketId).emit('cadastraOponente', data.jogador1.nome);
+    io.to(jogo[gameId].jogador[0].id).emit('cadastraOponente', jogo[gameId].jogador[1].nome);
+    io.to(jogo[gameId].jogador[1].id).emit('cadastraOponente', jogo[gameId].jogador[0].nome);
+};
+
+
+// Recebe do HOST a informação sobre qual jogador jogará primeiro
+function playerIniciativa(gameId) {
+    
+    // Gera um número aleatório entre 0 e 1
+    var iniciativa = Math.round(Math.random());
+
+    // Marca o jogador que venceu a iniciativa como ativo
+    // console.log("O jogador " + jogo[gameId].jogador[iniciativa].nome + " vai começar!");
+
+    io.sockets.in(gameId).emit('iniciarJogo', jogo[gameId].jogador[iniciativa].nome);
+
+    //io.to(jogo[gameId].jogador[iniciativa].id).emit('playerExecutaJogada');
 };
 
 // Contador terminou, o jogo começa!
@@ -88,7 +103,13 @@ function playerEntraJogo(data) {
     if (sala != undefined) {
         // conecta socket id ao data object
         console.log(data.nome + ' entra na sala: ' + data.gameId);
-        data.socketId = sock.id;
+        
+        jogo[data.gameId].jogador[jogo[data.gameId].jogador.length] = { nome: data.nome, id: sock.id };
+        // Adicionando dados do player ao Back-End
+        console.log("Jogo " + data.gameId + ": ");
+        console.log(jogo[data.gameId]);
+        
+        //data.socketId = sock.id;
         console.log(data);
 
         // Entra na sala
@@ -127,18 +148,11 @@ var tabuleiro = [[ 0, 0, 0],
                  [ 0, 0, 0],
                  [ 0, 0, 0]];
 
+// Variável que armazena as informações dos jogos.
+var jogo = {  };
+
 //temp
 var n = 1;
 
 var venceu = 0;
 
-var jogadores = [];
-
-function playerIniciativa(gameId, player) {
-
-    // Marca o jogador que venceu a iniciativa como ativo
-    console.log(jogadores[player].socketId);
-    jogadores[player].ativo = true;
-
-    io.to(jogadores[player].socketId).emit('playerAguardaJogada');
-};

@@ -5,8 +5,8 @@
         .module('app')
         .controller('SocketCtrl', SocketCtrl);
 
-    SocketCtrl.inject = ['$scope'];
-    function SocketCtrl($scope) {
+    SocketCtrl.inject = ['$scope', '$timeout'];
+    function SocketCtrl($scope, $timeout) {
 
         var vm = this;
 
@@ -15,22 +15,22 @@
         // Player
         vm.onEntrarClick = onEntrarClick;
         vm.onRegistrarClick = onRegistrarClick;
+        vm.onPlayerJogadaClick = onPlayerJogadaClick;
 
         vm.info = {
             url: window.location.href,
             pagina: "./html/intro.html",
             gameId: undefined,
-            jogadores: [],
+            jogadores: [], // nome
             espera: false,
             tabuleiro: [],
             nome: undefined,
-            oponente: undefined
+            oponente: undefined,
+            jogocomecou: false
         };
 
         var meusDados = {
-            hostSocketId: '',
-            socketId: '',
-            papel: '',
+            papel: ''
         };
 
         console.log('Iniciando socketCtrl');
@@ -41,10 +41,11 @@
         
         function escutandoEventos() {
             socket.on('conectado', onConectado);
-            socket.on('novoJogoCriado', iniciarJogo);
+            socket.on('novoJogoCriado', novoJogoCriado);
             socket.on('playerEntraSala', playerEntraSala);
-            socket.on('iniciaNovoJogo', iniciaNovoJogo);
             socket.on('cadastraOponente', cadastraOponente);
+            socket.on('sorteiaIniciativa', sorteiaIniciativa);
+            socket.on('iniciarJogo', iniciarJogo);
             /*socket.on('hostChecaJogada', IO.hostChecaJogada);
             socket.on('gameOver', IO.gameOver);
             socket.on('erro', IO.erro);
@@ -71,10 +72,14 @@
             hp[meusDados.papel].atualizaTelaEspera(data);
         };
 
-        function iniciaNovoJogo(data) {
+        function sorteiaIniciativa(data) {
             console.log('Começando novo jogo - ' + meusDados.papel);
             hp[meusDados.papel].playerSorteio(data);
-        };        
+        };   
+
+        function iniciarJogo(jogadornome) {
+            hp[meusDados.papel].iniciarJogo(jogadornome);
+        };
 
         /////////////////////////////////
         ///                           ///
@@ -86,14 +91,13 @@
             socket.emit('hostCriarNovoJogo');
         };
 
-        function iniciarJogo(serverdata) {
+        function novoJogoCriado(serverdata) {
             vm.info.gameId = serverdata.gameId;
-            meusDados.socketId = serverdata.meuSocketId;
             meusDados.papel = 'Host';
-            //vm.Jogo.Host.numJogadoresNaSala = 0;
             
             // Exibir tela de jogo novo
             vm.info.pagina = "./html/novoJogo.html";
+            $scope.$apply();
         };
 
         hp.Host.atualizaTelaEspera = function (playerdata) {
@@ -102,28 +106,15 @@
             if( vm.info.jogadores.length === 0 ) {
                 
                 // Adicionar novo jogador na tela de espera
-                vm.info.jogadores.push(playerdata);
-                console.log(vm.info.jogadores);
+                vm.info.jogadores.push(playerdata.nome);
 
             } else if( vm.info.jogadores.length === 1) {
                 
-                vm.info.jogadores.push(playerdata);
-                var newdata = {
-                    jogador1: { 
-                        nome: vm.info.jogadores[0].nome,
-                        socketId: vm.info.jogadores[0].socketId
-                    },
-                    jogador2: { 
-                        nome: vm.info.jogadores[1].nome,
-                        socketId: vm.info.jogadores[1].socketId
-                    },
-                    gameId: vm.info.gameId
-                };
-                console.log(newdata);
+                vm.info.jogadores.push(playerdata.nome);
 
-                vm.info.nome = vm.info.jogadores[0].nome;
-                vm.info.oponente = vm.info.jogadores[1].nome;
-                socket.emit('hostSalaCheia', newdata);
+                vm.info.nome = vm.info.jogadores[0];
+                vm.info.oponente = vm.info.jogadores[1];
+                socket.emit('hostSalaCheia', vm.info.gameId);
 
             } else {
                 
@@ -134,7 +125,7 @@
             $scope.$apply();
         };
 
-        hp.Host.playerSorteio =  function (gamedata) {
+        hp.Host.playerSorteio = function (gamedata) {
                     
             vm.info.tabuleiro = gamedata.tabuleiro;
             
@@ -142,11 +133,22 @@
             vm.info.pagina = './html/grid.html';
             $scope.$apply();
 
-            // Gera um número aleatório entre 0 e 1
-            var iniciativa = Math.round(Math.random());
-
             // Envia ao servidor o resultado da Iniciativa
-            socket.emit('playerIniciativa', vm.info.gameId, iniciativa);
+            socket.emit('playerIniciativa', vm.info.gameId);
+        };
+
+        hp.Host.iniciarJogo = function (jogadornome) {
+
+            if (vm.info.nome === jogadornome) {
+                vm.info.iniciativa = true;
+            }
+
+            $timeout(contador, 2000);
+            function contador() {
+                console.log('Acabou o tempo, jogo começando, crau');
+                vm.info.jogocomecou = true;
+            };
+
         };
 
         /////////////////////////////////
@@ -167,13 +169,11 @@
             var dadosJogador = {
                 gameId: vm.temp.id, // colher dados digitados pelo usuário
                 nome: vm.temp.nome,
-                ativo: false
             };
 
             vm.info.nome = vm.temp.nome;
 
-            console.log(dadosJogador);
-
+            vm.info.gameId = vm.temp.id;
             meusDados.papel = 'Player';
             socket.emit('playerEntraJogo', dadosJogador);
 
@@ -183,6 +183,12 @@
             console.log('Oponente: ' + data);
             vm.info.oponente = data;
             $scope.$apply();
+        };
+
+        function onPlayerJogadaClick(linha, coluna) {
+            if (!vm.info.espera) {
+                
+            }
         };
 
         hp.Player.atualizaTelaEspera = function (playerdata) {
@@ -195,12 +201,26 @@
             $scope.$apply();
         };
 
-        hp.Player.playerSorteio = function (data) {
-            vm.info.tabuleiro = data.tabuleiro;
+        hp.Player.playerSorteio = function (gamedata) {
+            vm.info.tabuleiro = gamedata.tabuleiro;
             vm.info.pagina = './html/grid.html';
-            meusDados.hostSocketId = data.meuSocketId;
 
             $scope.$apply();
+        };
+
+        hp.Player.iniciarJogo = function (nomejogador) {
+            
+            console.log(nomejogador + " = " + vm.info.nome + " = ");
+            console.log(vm.info.nome == nomejogador);
+            if (vm.info.nome == nomejogador) {
+                vm.info.iniciativa = true;
+            };
+
+            $timeout(contador, 2000);
+            function contador() {
+                vm.info.jogocomecou = true;
+            };
+
         };
 
 /////////////////////////  OLD   //////////////////////////////
@@ -223,7 +243,6 @@
 
             playerAguardaJogada: function() {
                 console.log('Minha vez de jogar...');
-                
             }
         };
 
