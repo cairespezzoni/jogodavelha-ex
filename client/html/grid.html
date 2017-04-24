@@ -1,22 +1,24 @@
 
-<div id="cara-coroa" ng-show="!vm.info.jogocomecou">
-    <div id="cara-coroa-1" ng-show="vm.info.iniciativa">
+<div id="cara-coroa" ng-show="vm.info.jogocomecou">
+    <div id="cara-coroa-1" ng-show="vm.info.suavez">
         <h3>{{ vm.info.nome }} começa o jogo!</h3>
     </div>
-    <div id="cara-coroa-2" ng-show="!vm.info.iniciativa">
+    <div id="cara-coroa-2" ng-show="!vm.info.suavez">
         <h3>{{ vm.info.oponente }} começa o jogo!</h3>
     </div>
 </div>
-<grid ng-controller="VeiaCtrl as veia" ng-show="vm.info.jogocomecou">
-    <div ng-repeat="linha in vm.info.tabuleiro track by $index" class="row">
-        <span ng-repeat="coluna in vm.info.tabuleiro[$index] track by $index" 
-            class="grid espaco" ng-class="veia.estilo[$parent.$index][this.$index]" 
-            ng-click="vm.onJogadaClick($parent.$index, $index)"> 
+<grid ng-show="vm.info.jogocomecou">
+    <div class="row"
+         ng-repeat="linha in vm.info.tabuleiro track by $index">
+        <span class="grid espaco" 
+              ng-class="vm.info.estilo[$parent.$index][this.$index]"
+              ng-repeat="coluna in vm.info.tabuleiro[$index] track by $index"
+              ng-click="vm.onPlayerJogadaClick($parent.$index, $index)"> 
             {{ $parent.$index }}, {{ this.$index }} = {{ vm.info.tabuleiro[$parent.$index][this.$index] }} 
-            <br> {{ veia.estilo[$parent.$index][this.$index] }}
+            <br> {{ vm.info.estilo[$parent.$index][this.$index] }}
         </span>
     </div>
     <p>
-        {{ vm.info.nome }} || {{ vm.info.oponente }} || Vitória: {{ veia.vitoria }}
+        {{ vm.info.nome }} || {{ vm.info.oponente }} || SuaVez: {{ vm.info.suavez }}
     </p>
 </grid>

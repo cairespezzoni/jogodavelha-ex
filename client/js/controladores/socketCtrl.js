@@ -24,9 +24,15 @@
             jogadores: [], // nome
             espera: false,
             tabuleiro: [],
+            estilo:[["","",""],
+                    ["","",""],
+                    ["","",""]],
             nome: undefined,
             oponente: undefined,
-            jogocomecou: false
+            jogocomecou: false,
+            suavez: false,
+            finalclasse: "finalempate",
+            finalmsg: "Deu velha!"
         };
 
         var meusDados = {
@@ -46,11 +52,11 @@
             socket.on('cadastraOponente', cadastraOponente);
             socket.on('sorteiaIniciativa', sorteiaIniciativa);
             socket.on('iniciarJogo', iniciarJogo);
-            /*socket.on('hostChecaJogada', IO.hostChecaJogada);
-            socket.on('gameOver', IO.gameOver);
-            socket.on('erro', IO.erro);
-
-            socket.on('playerAguardaJogada', IO.playerAguardaJogada);*/
+            socket.on('suaVez', suaVez);
+            socket.on('atualizaTabuleiro', atualizaTabuleiro);
+            socket.on('hostFimJogo', hostFimJogo);
+            socket.on('playerVitoria', playerVitoria);
+            socket.on('playerDerrota', playerDerrota);
         };
 
         function onConectado(data) {
@@ -81,6 +87,17 @@
             hp[meusDados.papel].iniciarJogo(jogadornome);
         };
 
+        function atualizaTabuleiro(datajogada) {
+            vm.info.tabuleiro = datajogada.tabuleiro;
+            hp[meusDados.papel].atualizaTabuleiro(datajogada);
+            $scope.$apply();
+        };
+
+        function terminaJogo() {
+            vm.info.pagina = "./html/fimjogo.html";
+            $scope.$apply();
+        }
+
         /////////////////////////////////
         ///                           ///
         ///          HOST             ///
@@ -100,6 +117,12 @@
             $scope.$apply();
         };
 
+        function hostFimJogo(datajogada) {
+            terminaJogo();
+
+
+        };
+
         hp.Host.atualizaTelaEspera = function (playerdata) {
             console.log("Jogador " + playerdata.nome + " entrou no jogo!");
             
@@ -114,7 +137,8 @@
 
                 vm.info.nome = vm.info.jogadores[0];
                 vm.info.oponente = vm.info.jogadores[1];
-                socket.emit('hostSalaCheia', vm.info.gameId);
+                // Talvez seja necessário enviar Array de jogadores para resolver problema de iniciativa
+                socket.emit('hostPreparaJogo', vm.info.gameId);
 
             } else {
                 
@@ -139,16 +163,21 @@
 
         hp.Host.iniciarJogo = function (jogadornome) {
 
-            if (vm.info.nome === jogadornome) {
-                vm.info.iniciativa = true;
-            }
-
-            $timeout(contador, 2000);
             function contador() {
                 console.log('Acabou o tempo, jogo começando, crau');
                 vm.info.jogocomecou = true;
             };
 
+            $timeout(contador, 2000);
+
+        };
+
+        hp.Host.atualizaTabuleiro = function (datajogada) {
+            if (datajogada.nome == vm.info.jogadores[0]) {
+                vm.info.estilo[datajogada.linha][datajogada.coluna] = "jogador1";
+            } else {
+                vm.info.estilo[datajogada.linha][datajogada.coluna] = "jogador2";
+            };
         };
 
         /////////////////////////////////
@@ -179,16 +208,40 @@
 
         };
 
+        function onPlayerJogadaClick(linha, coluna) {
+            console.log("Clicou num quadro...");
+            if (vm.info.suavez == true && meusDados.papel == 'Player') {
+                if (!vm.info.tabuleiro[linha][coluna]) {
+                    console.log("...e era sua vez!");
+                    vm.info.estilo[linha][coluna] = "jogador1";
+                    var datajogada = {
+                        linha: linha,
+                        coluna: coluna,
+                        gameId: vm.info.gameId,
+                        nome: vm.info.nome
+                    };
+                    console.log('Joguei, aguardando minha vez!!');
+                    socket.emit('hostChecaJogada', datajogada);
+                    vm.info.suavez = false;
+                }
+            } else {
+                console.log("...mas não era sua vez!");
+            }
+        };
+
         function cadastraOponente(data) {
             console.log('Oponente: ' + data);
             vm.info.oponente = data;
             $scope.$apply();
         };
 
-        function onPlayerJogadaClick(linha, coluna) {
-            if (!vm.info.espera) {
-                
-            }
+        function suaVez() {
+            console.log('É a minha vez!!!');
+            vm.info.suavez = true;
+        };
+
+        function playerVitoria(condicao) {
+            terminaJogo();
         };
 
         hp.Player.atualizaTelaEspera = function (playerdata) {
@@ -208,107 +261,19 @@
             $scope.$apply();
         };
 
-        hp.Player.iniciarJogo = function (nomejogador) {
+        hp.Player.iniciarJogo = function () {
             
-            console.log(nomejogador + " = " + vm.info.nome + " = ");
-            console.log(vm.info.nome == nomejogador);
-            if (vm.info.nome == nomejogador) {
-                vm.info.iniciativa = true;
-            };
-
             $timeout(contador, 2000);
             function contador() {
                 vm.info.jogocomecou = true;
             };
-
         };
 
-/////////////////////////  OLD   //////////////////////////////
-        // Métodos de envio/recebimento de dados via Socket.IO
-        var IO = {
-
-            hostChecaJogada: function(data) {
-                if (vm.Jogo.meuPapel === 'Host') {
-                    vm.Jogo.Host.checaJogada(data);
-                };
-            },
-
-            gameOver: function(data) {
-                vm.Jogo[vm.Jogo.meuPapel].endGame(data);
-            },
-
-            erro: function(data) {
-                alert(data.message);
-            },
-
-            playerAguardaJogada: function() {
-                console.log('Minha vez de jogar...');
-            }
-        };
-
-        vm.Jogo = {
-            Host: {
-               
-                checaJogada: function(data) {
-                    /*var data = {
-                        gameId: vm.Jogo.gameId,
-                    }
-
-                    IO.socket.emit('hostProxJogada', data);*/
-                },
-                
-                endGame: function(data) {
-                    /*var p1 = vm.jogadores[0];
-                    var p1Name = p1.nome;
-
-                    var p2 = vm.jogadores[1];
-                    var p2Name = p2.nome;
-
-                    // Encontrar quem foi o vencedor.
-
-                    // Mostrar vencedor (ou mensagem de empate)
-                    vm.Jogo.Host.numJogadoresNaSala = 0;
-                    vm.Jogo.Host.jogoNovo = true;*/
-                },
-
-                restartGame: function() {
-                    // exibir tela de novo jogo
-                    // usar mesmo Jogo.gameId
-                }
-            },
-
-            Player: {
-
-                onPlayerJogadaClick: function() {
-                    // colher dados de qual campo o usuário clicou
-                    var jogada = '';
-
-                    var data = {
-                        gameId: vm.Jogo.gameId,
-                        playerId: vm.Jogo.meuSocketId,
-                        jogada: jogada
-                    };
-                    
-                    IO.socket.emit('playerJogada', data);
-                },
-
-                onPlayerRestart: function() {
-                    var data = {
-                        gameId: vm.Jogo.gameId,
-                        jogadorNome: vm.Jogo.Player.meuNome
-                    };
-
-                    IO.socket.emit('playerRestart', data);
-                    // Mostrar mensagem de esperando Host iniciar novo jogo
-                },
-
-                endGame: function() {
-                    // mostrar mensagem de fim de jogo com opções de
-                    // Reiniciar ou Quitar
-                }
-            }
-        };
-
-        //vm.Jogo.init();
+        hp.Player.atualizaTabuleiro = function (datajogada) {
+            vm.info.tabuleiro = datajogada.tabuleiro;
+            if (vm.info.estilo[datajogada.linha][datajogada.coluna] == "") {
+                vm.info.estilo[datajogada.linha][datajogada.coluna] = "jogador2";
+            };
+        }
     }
 })();

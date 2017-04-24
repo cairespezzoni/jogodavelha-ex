@@ -4,13 +4,14 @@ var gameSocket;
 exports.initGame = function(sio, socket) {
     io = sio;
     gameSocket = socket;
-    gameSocket.emit('conectado', { message: "Você está conectado!" });
+    gameSocket.emit('conectado', { message: "Conectou-se ao servidor!" });
     
     // Eventos Host
     gameSocket.on('hostCriarNovoJogo', hostCriarNovoJogo);
-    gameSocket.on('hostSalaCheia', hostPreparaJogo);
-    gameSocket.on('hostContagemTerminada', hostIniciaJogo);
-    gameSocket.on('hostProxJogada', hostProxJogada);
+    gameSocket.on('hostPreparaJogo', hostPreparaJogo);
+    gameSocket.on('hostChecaJogada', hostChecaJogada);
+    //gameSocket.on('hostContagemTerminada', hostIniciaJogo);
+    //gameSocket.on('hostProxJogada', hostProxJogada);
     
     // Eventos Player
     gameSocket.on('playerEntraJogo', playerEntraJogo);
@@ -21,7 +22,12 @@ exports.initGame = function(sio, socket) {
     gameSocket.on('playerIniciativa', playerIniciativa);
 }
 
-//-------------------------- Funções do HOST ----------------------------
+        /////////////////////////////////
+        ///                           ///
+        ///          HOST             ///
+        ///                           ///
+        /////////////////////////////////
+        
 // Clicou no botão 'START' e o evento hostCriarNovoJogo ocorreu.
 function hostCriarNovoJogo() {
     // Cria ID de sala Socket.IO único
@@ -31,7 +37,7 @@ function hostCriarNovoJogo() {
     this.emit('novoJogoCriado', {gameId: thisGameId, hostSocketId: this.id} );
 
     // Adicionando dados do host ao Back-End
-    jogo[thisGameId] = { hostId: this.id, jogador: [], tabuleiro: tabuleiro };
+    jogo[thisGameId] = { hostId: this.id, jogador: [], tabuleiro: [[ 0, 0, 0], [ 0, 0, 0], [ 0, 0, 0]] };
     console.log("Jogos Ativos: ");
     console.log(jogo);
 
@@ -62,31 +68,103 @@ function playerIniciativa(gameId) {
     var iniciativa = Math.round(Math.random());
 
     // Marca o jogador que venceu a iniciativa como ativo
-    // console.log("O jogador " + jogo[gameId].jogador[iniciativa].nome + " vai começar!");
+    console.log("O jogador " + jogo[gameId].jogador[iniciativa].nome + " vai começar!");
 
     io.sockets.in(gameId).emit('iniciarJogo', jogo[gameId].jogador[iniciativa].nome);
-
-    //io.to(jogo[gameId].jogador[iniciativa].id).emit('playerExecutaJogada');
+    io.to(jogo[gameId].jogador[iniciativa].id).emit('suaVez');
 };
 
-// Contador terminou, o jogo começa!
-function hostIniciaJogo(gameId) {
-    console.log('Jogo iniciado.');
-    //iniciaJogo(gameId); Pede para iniciar o jogo!!
-};
+function hostChecaJogada(datajogada) { // datajogada = { linha, coluna, gameId, nome }
 
-// Termina o jogo!
-function hostProxJogada(data) {
-    // Passa para próxima jogada e, caso verifique que o jogo terminou
-    // envia a mensagem de que o jogo chegou ao seu fim
-    if (true) {
-        console.log('hostProxJogada');
+    var jogada;
+    var id;
+    var oponenteid;
+
+
+    if (jogo[datajogada.gameId].jogador[0].nome == datajogada.nome) {
+        id = 0;
+        jogada = -1;
+        oponenteid = 1;
+    } else if (jogo[datajogada.gameId].jogador[1].nome == datajogada.nome) {
+        id = 1;
+        jogada = 1;
+        oponenteid = 0;
+    };
+
+    jogo[datajogada.gameId].tabuleiro[datajogada.linha][datajogada.coluna] = jogada;
+
+    var resultado = hostChecaVitoria(datajogada.gameId, jogada);
+    var newdatajogada = {
+        tabuleiro: jogo[datajogada.gameId].tabuleiro,
+        nome: datajogada.nome,
+        linha: datajogada.linha,
+        coluna: datajogada.coluna
+    };
+
+    io.sockets.in(datajogada.gameId).emit('atualizaTabuleiro', newdatajogada);
+
+    if (resultado) {
+        
+        io.to(jogo[datajogada.gameId].jogador[id].id).emit('playerVitoria', resultado);
+        io.to(jogo[datajogada.gameId].jogador[oponenteid].id).emit('playerDerrota', resultado);
+        io.to(jogo[datajogada.gameId].hostId).emit('hostFimJogo', newdatajogada);
+
     } else {
-        io.sockets.in(data.gameId).emit('gameOver', data);
-    }
+    
+        io.to(jogo[datajogada.gameId].jogador[oponenteid].id).emit('suaVez');
+        console.log(jogo[datajogada.gameId].tabuleiro);
+
+    };
 };
 
-//----------------------- Funções do PLAYER
+function hostChecaVitoria(gameId, n) {
+    var vitoria = [[[ n, n, n], [ 8, 8, 8], [ 8, 8, 8]], // condição de vitória 1
+                   [[ 8, 8, 8], [ n, n, n], [ 8, 8, 8]], // condição de vitória 2
+                   [[ 8, 8, 8], [ 8, 8, 8], [ n, n, n]], // condição de vitória 3
+                   [[ n, 8, 8], [ n, 8, 8], [ n, 8, 8]], // condição de vitória 4
+                   [[ 8, n, 8], [ 8, n, 8], [ 8, n, 8]], // condição de vitória 5
+                   [[ 8, 8, n], [ 8, 8, n], [ 8, 8, n]], // condição de vitória 6
+                   [[ n, 8, 8], [ 8, n, 8], [ 8, 8, n]], // condição de vitória 7
+                   [[ 8, 8, n], [ 8, n, 8], [ n, 8, 8]]  // condição de vitória 8
+    ];
+    var venceu = 0;
+    var empate = 0;
+
+    // testar vitória
+    // Compara o estado atual do jogo com o array de condições de vitória
+    for (var condicao = 0; condicao < vitoria.length; condicao++) {
+        for (var linha = 0; linha < vitoria[condicao].length; linha++) {
+            for (var coluna = 0; coluna < vitoria[condicao][linha].length; coluna++) {
+                //console.log("Condicao: " + condicao + ", Linha: " + linha + ", Coluna: " + coluna);
+                //console.log(jogo[gameId].tabuleiro[linha][coluna] + " compara com " + vitoria[condicao][linha][coluna]);
+                if (jogo[gameId].tabuleiro[linha][coluna] === vitoria[condicao][linha][coluna] &&
+                    jogo[gameId].tabuleiro[linha][coluna] === n) {
+                        venceu++;
+                        //console.log(jogo[gameId].tabuleiro[linha][coluna] === vitoria[condicao][linha][coluna]);
+                }
+                if (jogo[gameId].tabuleiro[linha][coluna] != 0) {
+                    empate++;
+                }
+            }
+        }
+        if (venceu === 3) {
+            console.log(venceu + " - O jogador " + n + " venceu na condição " + (condicao + 1) + ", jogo terminou!");
+            return condicao + 1; // Vitória do jogador ativo, retorna inteiro de 1~8
+        } else if (empate === 9) {
+            console.log("Empatou!!!!!!!!!!!!");
+            return 9; // Empate entre jogadores, retorna 9
+        }
+        venceu = 0;
+        empate = 0;
+    };
+    return 0; // Vitória = False
+};
+
+        /////////////////////////////////
+        ///                           ///
+        ///          PLAYER           ///
+        ///                           ///
+        /////////////////////////////////
 
 /* Jogador clicou no botão 'INICIAR JOGO'
    Tentativa de conectar-se a sala correspondente
@@ -144,15 +222,14 @@ function playerRestart(data) {
 // ###            Jogo da Veia                 ###
 // ###############################################
 
-var tabuleiro = [[ 0, 0, 0],
+/*var tabuleiro = [[ 0, 0, 0],
                  [ 0, 0, 0],
-                 [ 0, 0, 0]];
+                 [ 0, 0, 0]];*/
 
 // Variável que armazena as informações dos jogos.
 var jogo = {  };
 
 //temp
 var n = 1;
-
 var venceu = 0;
 
