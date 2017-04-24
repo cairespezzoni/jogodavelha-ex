@@ -16,6 +16,7 @@
         vm.onEntrarClick = onEntrarClick;
         vm.onRegistrarClick = onRegistrarClick;
         vm.onPlayerJogadaClick = onPlayerJogadaClick;
+        vm.onPlayerRestartClick = onPlayerRestartClick;
 
         vm.info = {
             url: window.location.href,
@@ -57,6 +58,7 @@
             socket.on('hostFimJogo', hostFimJogo);
             socket.on('playerVitoria', playerVitoria);
             socket.on('playerDerrota', playerDerrota);
+            socket.on('reiniciaJogo', reiniciaJogo);
         };
 
         function onConectado(data) {
@@ -95,8 +97,22 @@
 
         function terminaJogo() {
             vm.info.pagina = "./html/fimjogo.html";
+            vm.info.espera = false;
             $scope.$apply();
-        }
+        };
+
+        function reiniciaJogo(data) {
+            // gameId, pagina, estilo, jogocomecou, suavez, finalclasse, finalmsg
+            vm.info.pagina = data.pagina;
+            vm.info.estilo = data.estilo;
+            vm.info.jogocomecou = data.jogocomecou;
+            vm.info.suavez = data.suavez;
+            vm.info.finalclasse = data.finalclasse;
+            vm.info.finalmsg = data.finalmsg;
+            if (meusDados.papel == 'Host') {
+                socket.emit('hostPreparaJogo', vm.info.gameId);
+            };
+        };
 
         /////////////////////////////////
         ///                           ///
@@ -118,9 +134,11 @@
         };
 
         function hostFimJogo(datajogada) {
+            if (datajogada.resultado != 9) {
+                vm.info.finalclasse = "finalvitoria";
+                vm.info.finalmsg = datajogada.nome + " é o vencedor!";
+            };
             terminaJogo();
-
-
         };
 
         hp.Host.atualizaTelaEspera = function (playerdata) {
@@ -137,7 +155,6 @@
 
                 vm.info.nome = vm.info.jogadores[0];
                 vm.info.oponente = vm.info.jogadores[1];
-                // Talvez seja necessário enviar Array de jogadores para resolver problema de iniciativa
                 socket.emit('hostPreparaJogo', vm.info.gameId);
 
             } else {
@@ -166,9 +183,10 @@
             function contador() {
                 console.log('Acabou o tempo, jogo começando, crau');
                 vm.info.jogocomecou = true;
+                $scope.$apply();
             };
 
-            $timeout(contador, 2000);
+            $timeout(contador, 5000);
 
         };
 
@@ -229,6 +247,20 @@
             }
         };
 
+        function onPlayerRestartClick() {
+
+            var newdata = { 
+                gameId: vm.info.gameId,
+                pagina: "./html/grid.html",
+                estilo: [["","",""], ["","",""], ["","",""]],
+                jogocomecou: false,
+                suavez: false,
+                finalclasse: "finalempate",
+                finalmsg: "Deu velha!"
+            };
+            socket.emit('playerJogoRestart', newdata);
+        };
+
         function cadastraOponente(data) {
             console.log('Oponente: ' + data);
             vm.info.oponente = data;
@@ -238,9 +270,22 @@
         function suaVez() {
             console.log('É a minha vez!!!');
             vm.info.suavez = true;
+            $scope.$apply();
         };
 
         function playerVitoria(condicao) {
+            if (condicao != 9) {
+                vm.info.finalclasse = "finalvitoria";
+                vm.info.finalmsg = "Parabéns, você ganhou!";
+            };
+            terminaJogo();
+        };
+
+        function playerDerrota(condicao) {
+            if (condicao != 9) {
+                vm.info.finalclasse = "finalderrota";
+                vm.info.finalmsg = "Vixe, você perdeu..."
+            };
             terminaJogo();
         };
 
@@ -263,9 +308,10 @@
 
         hp.Player.iniciarJogo = function () {
             
-            $timeout(contador, 2000);
+            $timeout(contador, 5000);
             function contador() {
                 vm.info.jogocomecou = true;
+                $scope.$apply();
             };
         };
 

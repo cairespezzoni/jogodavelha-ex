@@ -1,5 +1,6 @@
 var io;
 var gameSocket;
+var jogo = {  }; // Variável que armazena as informações dos jogos.
 
 exports.initGame = function(sio, socket) {
     io = sio;
@@ -10,13 +11,10 @@ exports.initGame = function(sio, socket) {
     gameSocket.on('hostCriarNovoJogo', hostCriarNovoJogo);
     gameSocket.on('hostPreparaJogo', hostPreparaJogo);
     gameSocket.on('hostChecaJogada', hostChecaJogada);
-    //gameSocket.on('hostContagemTerminada', hostIniciaJogo);
-    //gameSocket.on('hostProxJogada', hostProxJogada);
     
     // Eventos Player
     gameSocket.on('playerEntraJogo', playerEntraJogo);
-    gameSocket.on('playerJogada', playerJogada);
-    gameSocket.on('playerRestart', playerRestart);
+    gameSocket.on('playerJogoRestart', playerJogoRestart);
 
     // Eventos Jogo
     gameSocket.on('playerIniciativa', playerIniciativa);
@@ -98,7 +96,8 @@ function hostChecaJogada(datajogada) { // datajogada = { linha, coluna, gameId, 
         tabuleiro: jogo[datajogada.gameId].tabuleiro,
         nome: datajogada.nome,
         linha: datajogada.linha,
-        coluna: datajogada.coluna
+        coluna: datajogada.coluna,
+        resultado: resultado
     };
 
     io.sockets.in(datajogada.gameId).emit('atualizaTabuleiro', newdatajogada);
@@ -112,7 +111,7 @@ function hostChecaJogada(datajogada) { // datajogada = { linha, coluna, gameId, 
     } else {
     
         io.to(jogo[datajogada.gameId].jogador[oponenteid].id).emit('suaVez');
-        console.log(jogo[datajogada.gameId].tabuleiro);
+        //console.log(jogo[datajogada.gameId].tabuleiro);
 
     };
 };
@@ -203,33 +202,10 @@ function playerEntraJogo(data) {
     }
 };
 
-function playerJogada(data) {
-
-    // Jogada do player está anexada ao data object
-    // Emite um evento com a resposta para que esta seja checada pelo Host
-    io.sockets.in(data.gameId).emit('hostChecaJogada', data);
-};
-
 // O jogo terminou e o player clicou no botão 'Reiniciar'
-function playerRestart(data) {
+function playerJogoRestart(data) {
 
     // Emite os dados do player de volta para os clientes na sala de jogo
-    data.playerId = this.id;
-    io.sockets.in(data.gameId).emit('jogadorEntraSala', data);
+    jogo[data.gameId].tabuleiro = [[ 0, 0, 0], [ 0, 0, 0], [ 0, 0, 0]];
+    io.sockets.in(data.gameId).emit('reiniciaJogo', data);
 };
-
-// ###############################################
-// ###            Jogo da Veia                 ###
-// ###############################################
-
-/*var tabuleiro = [[ 0, 0, 0],
-                 [ 0, 0, 0],
-                 [ 0, 0, 0]];*/
-
-// Variável que armazena as informações dos jogos.
-var jogo = {  };
-
-//temp
-var n = 1;
-var venceu = 0;
-

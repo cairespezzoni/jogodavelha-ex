@@ -282,4 +282,8 @@ grid .row {
     margin: 5px;
 }
 .jogador1 { background: #ff7979; }
-.jogador2 { background: #8181ff; }  
+.jogador2 { background: #8181ff; }
+
+.finalempate { background: #777; }
+.finalvitoria { background: #ff7979; }
+.finalderrota { background: #8181ff; }

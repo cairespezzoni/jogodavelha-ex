@@ -1,5 +1,5 @@
 
-<div id="cara-coroa" ng-show="vm.info.jogocomecou">
+<div id="cara-coroa" ng-show="!vm.info.jogocomecou">
     <div id="cara-coroa-1" ng-show="vm.info.suavez">
         <h3>{{ vm.info.nome }} começa o jogo!</h3>
     </div>
@@ -14,8 +14,8 @@
               ng-class="vm.info.estilo[$parent.$index][this.$index]"
               ng-repeat="coluna in vm.info.tabuleiro[$index] track by $index"
               ng-click="vm.onPlayerJogadaClick($parent.$index, $index)"> 
-            {{ $parent.$index }}, {{ this.$index }} = {{ vm.info.tabuleiro[$parent.$index][this.$index] }} 
-            <br> {{ vm.info.estilo[$parent.$index][this.$index] }}
+            <!-- {{ $parent.$index }}, {{ this.$index }} = {{ vm.info.tabuleiro[$parent.$index][this.$index] }} 
+            <br> {{ vm.info.estilo[$parent.$index][this.$index] }} -->
         </span>
     </div>
     <p>
