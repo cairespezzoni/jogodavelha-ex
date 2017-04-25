@@ -7,21 +7,17 @@
 
         <!-- Referencias AngularJS -->
         <script src="./lib/angular/angular.js"></script>
-        <!--<script src="./lib/angular-route/angular-route.js"></script>-->
 
         <!-- Referência Socket.io -->
-        <script src="lib/socket.io-client/dist/socket.io.js"></script>
+        <script src="./lib/socket.io-client/dist/socket.io.js"></script>
 
-        <script src="./js/app.js"></script>
-        <script src="./js/controladores/veiaCtrl.js"></script>
-        <script src="./js/controladores/socketCtrl.js"></script>
-
-        
+        <script src="./app/app.module.js"></script>
+        <script src="./app/app.controller.js"></script>
 
         <link href="./css/style.css" rel="stylesheet">
 
     </head>
-    <body ng-app="app" ng-controller="SocketCtrl as vm" class="clearfix" ng-class="[{jogador1: socket.jogador[0].ativo && !socket.jogador[1].ativo}, {jogador2: !socket.jogador[0].ativo && socket.jogador[1].ativo}]">
+    <body ng-app="app" ng-controller="AppController as vm" class="clearfix" ng-class="[{ jogador1: vm.info.suavez && vm.info.jogocomecou}, { jogador2: !vm.info.suavez && vm.info.jogocomecou }]">
         <header>
             <div class="app-bar"><h1>Jogo da Velha - {{ vm.info.pagina }}</h1></title>
         </header>

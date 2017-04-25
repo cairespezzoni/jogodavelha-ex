@@ -3,10 +3,10 @@
 
     angular
         .module('app')
-        .controller('SocketCtrl', SocketCtrl);
+        .controller('AppController', AppController);
 
-    SocketCtrl.inject = ['$scope', '$timeout'];
-    function SocketCtrl($scope, $timeout) {
+    AppController.inject = ['$scope', '$timeout'];
+    function AppController($scope, $timeout) {
 
         var vm = this;
 
