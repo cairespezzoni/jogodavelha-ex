@@ -7,18 +7,23 @@
         <h3>{{ vm.info.oponente }} começa o jogo!</h3>
     </div>
 </div>
+
 <grid ng-show="vm.info.jogocomecou">
+    <div>
+        <h3>{{ vm.info.suavezmsg }}</h3>
+        <p><button id="btnRestart" ng-hide="vm.info.espera" ng-click="vm.onPlayerRestartClick()">Jogar Novamente?</button></p>
+    </div>
     <div class="row"
          ng-repeat="linha in vm.info.tabuleiro track by $index">
         <span class="grid espaco" 
-              ng-class="vm.info.estilo[$parent.$index][this.$index]"
+              ng-class="[vm.info.estilo[$parent.$index][this.$index], 'espaco'+$parent.$index+''+this.$index]"
               ng-repeat="coluna in vm.info.tabuleiro[$index] track by $index"
-              ng-click="vm.onPlayerJogadaClick($parent.$index, $index)"> 
+              ng-click="vm.onPlayerJogadaClick($parent.$index, $index)">
             <!-- {{ $parent.$index }}, {{ this.$index }} = {{ vm.info.tabuleiro[$parent.$index][this.$index] }} 
             <br> {{ vm.info.estilo[$parent.$index][this.$index] }} -->
         </span>
     </div>
     <p>
-        {{ vm.info.nome }} || {{ vm.info.oponente }} || SuaVez: {{ vm.info.suavez }}
+        {{ vm.info.nome }} || {{ vm.info.oponente }}
     </p>
 </grid>

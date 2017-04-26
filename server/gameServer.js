@@ -127,40 +127,44 @@ function hostChecaVitoria(gameId, n) {
                    [[ 8, 8, n], [ 8, n, 8], [ n, 8, 8]]  // condição de vitória 8
     ];
     var venceu = 0;
-    var empate = 0;
 
     // testar vitória
     // Compara o estado atual do jogo com o array de condições de vitória
     for (var condicao = 0; condicao < vitoria.length; condicao++) {
-        console.log("Condição: " + condicao);
+        empate = 0;
+        //console.log("---------------------Condição: " + condicao);
+        //console.log(jogo[gameId].tabuleiro);
         for (var linha = 0; linha < vitoria[condicao].length; linha++) {
-            console.log("Linha: " + linha);
+            //console.log("Linha: " + linha);
             for (var coluna = 0; coluna < vitoria[condicao][linha].length; coluna++) {
                 //console.log("Condicao: " + condicao + ", Linha: " + linha + ", Coluna: " + coluna);
-                console.log(jogo[gameId].tabuleiro[linha][coluna] + " compara com " + vitoria[condicao][linha][coluna]);
+                //console.log(jogo[gameId].tabuleiro[linha][coluna] + " compara com " + vitoria[condicao][linha][coluna]);
                 if (jogo[gameId].tabuleiro[linha][coluna] === vitoria[condicao][linha][coluna] &&
                     jogo[gameId].tabuleiro[linha][coluna] === n) {
                         venceu++;
-                        console.log(jogo[gameId].tabuleiro[linha][coluna] === vitoria[condicao][linha][coluna]);
+                        //console.log(jogo[gameId].tabuleiro[linha][coluna] === vitoria[condicao][linha][coluna]);
                 }
                 if (jogo[gameId].tabuleiro[linha][coluna] != 0) {
                     empate++;
                 }
-                console.log("Vencimento: " + venceu);
+                //console.log("Vencimento: " + venceu);
+                //console.log("Empate: " + empate);
             }
         }
-        if (venceu >= 3) {
+        if (venceu === 3) {
             console.log(venceu + " - O jogador " + n + " venceu na condição " + (condicao + 1) + ", jogo terminou!");
             return condicao + 1; // Vitória do jogador ativo, retorna inteiro de 1~8
-        } else if (empate === 9) {
-            console.log(venceu + " - O jogador " + n + " empatou na condição " + (condicao + 1) + ", jogo terminou!" + "");
-            console.log("Empatou!!!!!!!!!!!!");
-            return 9; // Empate entre jogadores, retorna 9
-        }
+        } 
         venceu = 0;
-        empate = 0;
     };
-    return 0; // Vitória = False
+
+    if (empate === 9) {
+            console.log(venceu + " - O jogador " + n + " empatou na condição " + (condicao + 1) + ", jogo terminou!" + "");
+            //console.log("Empatou!!!!!!!!!!!!");
+            return 9; // Empate entre jogadores, retorna 9
+    } else {
+        return 0; // Vitória = False
+    };
 };
 
         /////////////////////////////////
@@ -182,11 +186,26 @@ function playerEntraJogo(data) {
 
     // Se a sala existir
     if (sala != undefined) {
+        
+        var i;
+
+        if( jogo[data.gameId].jogador.length === 0 ) {
+            // Adicionar novo jogador na tela de espera
+            i = 0;
+        } else if( jogo[data.gameId].jogador.length === 1) {
+            i = 1;
+        } else {
+            console.log('Sala cheia!!!!!');
+            io.to(sock.id).emit('salaCheia');
+            return 0;
+        };
+        
         // conecta socket id ao data object
         console.log(data.nome + ' entra na sala: ' + data.gameId);
-        
-        jogo[data.gameId].jogador[jogo[data.gameId].jogador.length] = { nome: data.nome, id: sock.id };
+
         // Adicionando dados do player ao Back-End
+        jogo[data.gameId].jogador[i] = { nome: data.nome, id: sock.id };
+
         console.log("Jogo " + data.gameId + ": ");
         console.log(jogo[data.gameId]);
         
@@ -207,9 +226,22 @@ function playerEntraJogo(data) {
 };
 
 // O jogo terminou e o player clicou no botão 'Reiniciar'
-function playerJogoRestart(data) {
+function playerJogoRestart(gameId) {
+
+    var newdata = { 
+        gameId: gameId,
+        pagina: "./html/grid.html",
+        espera: true,
+        esperamsg: "",
+        estilo: [["","",""], ["","",""], ["","",""]],
+        jogocomecou: false,
+        suavez: false,
+        suavezmsg: "",
+        final: false,
+        finalclasse: "finalempate"
+    };
 
     // Emite os dados do player de volta para os clientes na sala de jogo
-    jogo[data.gameId].tabuleiro = [[ 0, 0, 0], [ 0, 0, 0], [ 0, 0, 0]];
-    io.sockets.in(data.gameId).emit('reiniciaJogo', data);
+    jogo[gameId].tabuleiro = [[ 0, 0, 0], [ 0, 0, 0], [ 0, 0, 0]];
+    io.sockets.in(gameId).emit('reiniciaJogo', newdata);
 };

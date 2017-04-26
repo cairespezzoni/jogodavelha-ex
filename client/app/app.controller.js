@@ -24,16 +24,17 @@
             gameId: undefined,
             jogadores: [], // nome
             espera: false,
+            esperamsg: "",
             tabuleiro: [],
-            estilo:[["","",""],
-                    ["","",""],
-                    ["","",""]],
+            estilo:[[[],[],[]],
+                    [[],[],[]],
+                    [[],[],[]]],
             nome: undefined,
             oponente: undefined,
             jogocomecou: false,
             suavez: false,
-            finalclasse: "finalempate",
-            finalmsg: "Deu velha!"
+            final: false,
+            finalclasse: "finalempate"
         };
 
         var meusDados = {
@@ -50,6 +51,7 @@
             socket.on('conectado', onConectado);
             socket.on('novoJogoCriado', novoJogoCriado);
             socket.on('playerEntraSala', playerEntraSala);
+            socket.on('salaCheia', salaCheia);
             socket.on('cadastraOponente', cadastraOponente);
             socket.on('sorteiaIniciativa', sorteiaIniciativa);
             socket.on('iniciarJogo', iniciarJogo);
@@ -63,6 +65,11 @@
 
         function onConectado(data) {
             console.log(data.message);
+        };
+
+        function salaCheia() {
+            vm.info.esperamsg = "A sala está cheia!";
+            $scope.$apply();
         };
 
         /////////////////////////////////
@@ -95,20 +102,66 @@
             $scope.$apply();
         };
 
-        function terminaJogo() {
-            vm.info.pagina = "./html/fimjogo.html";
+        function terminaJogo(condicao) {
+            switch(condicao) {
+                case 1:
+                    vm.info.estilo[0][0].push("vitoria");
+                    vm.info.estilo[0][1].push("vitoria");
+                    vm.info.estilo[0][2].push("vitoria");
+                    break;
+                case 2:
+                    vm.info.estilo[1][0].push("vitoria");
+                    vm.info.estilo[1][1].push("vitoria");
+                    vm.info.estilo[1][2].push("vitoria");
+                    break;
+                case 3:
+                    vm.info.estilo[2][0].push("vitoria");
+                    vm.info.estilo[2][1].push("vitoria");
+                    vm.info.estilo[2][2].push("vitoria");
+                    break;
+                case 4:
+                    vm.info.estilo[0][0].push("vitoria");
+                    vm.info.estilo[1][0].push("vitoria");
+                    vm.info.estilo[2][0].push("vitoria");
+                    break;
+                case 5:
+                    vm.info.estilo[0][1].push("vitoria");
+                    vm.info.estilo[1][1].push("vitoria");
+                    vm.info.estilo[2][1].push("vitoria");
+                    break;
+                case 6:
+                    vm.info.estilo[0][2].push("vitoria");
+                    vm.info.estilo[1][2].push("vitoria");
+                    vm.info.estilo[2][2].push("vitoria");
+                    break;
+                case 7:
+                    vm.info.estilo[0][0].push("vitoria");
+                    vm.info.estilo[1][1].push("vitoria");
+                    vm.info.estilo[2][2].push("vitoria");
+                    break;
+                case 8:
+                    vm.info.estilo[2][0].push("vitoria");
+                    vm.info.estilo[1][1].push("vitoria");
+                    vm.info.estilo[0][2].push("vitoria");
+                    break;
+            };
             vm.info.espera = false;
+            vm.info.final = true;
             $scope.$apply();
         };
 
         function reiniciaJogo(data) {
             // gameId, pagina, estilo, jogocomecou, suavez, finalclasse, finalmsg
             vm.info.pagina = data.pagina;
+            vm.info.espera = data.espera;
+            vm.info.esperamsg = data.esperamsg;
             vm.info.estilo = data.estilo;
             vm.info.jogocomecou = data.jogocomecou;
             vm.info.suavez = data.suavez;
+            vm.info.suavezmsg = data.suavezmsg;
+            vm.info.final = data.final;
             vm.info.finalclasse = data.finalclasse;
-            vm.info.finalmsg = data.finalmsg;
+            $scope.$apply();
             if (meusDados.papel == 'Host') {
                 socket.emit('hostPreparaJogo', vm.info.gameId);
             };
@@ -136,9 +189,9 @@
         function hostFimJogo(datajogada) {
             if (datajogada.resultado != 9) {
                 vm.info.finalclasse = "finalvitoria";
-                vm.info.finalmsg = datajogada.nome + " é o vencedor!";
+                vm.info.suavezmsg = datajogada.nome + " é o vencedor!";
             };
-            terminaJogo();
+            terminaJogo(datajogada.resultado);
         };
 
         hp.Host.atualizaTelaEspera = function (playerdata) {
@@ -192,9 +245,9 @@
 
         hp.Host.atualizaTabuleiro = function (datajogada) {
             if (datajogada.nome == vm.info.jogadores[0]) {
-                vm.info.estilo[datajogada.linha][datajogada.coluna] = ["jogador1", "jogada1"];
+                vm.info.estilo[datajogada.linha][datajogada.coluna] = ["jogada1"];
             } else {
-                vm.info.estilo[datajogada.linha][datajogada.coluna] = ["jogador2", "jogada2"];
+                vm.info.estilo[datajogada.linha][datajogada.coluna] = ["jogada2"];
             };
         };
 
@@ -231,7 +284,7 @@
             if (vm.info.suavez == true && meusDados.papel == 'Player') {
                 if (!vm.info.tabuleiro[linha][coluna]) {
                     console.log("...e era sua vez!");
-                    vm.info.estilo[linha][coluna] = ["jogador1", "jogada1"];
+                    vm.info.estilo[linha][coluna] = ["jogada1"];
                     var datajogada = {
                         linha: linha,
                         coluna: coluna,
@@ -241,6 +294,7 @@
                     console.log('Joguei, aguardando minha vez!!');
                     socket.emit('hostChecaJogada', datajogada);
                     vm.info.suavez = false;
+                    vm.info.suavezmsg = "";
                 }
             } else {
                 console.log("...mas não era sua vez!");
@@ -248,17 +302,7 @@
         };
 
         function onPlayerRestartClick() {
-
-            var newdata = { 
-                gameId: vm.info.gameId,
-                pagina: "./html/grid.html",
-                estilo: [["","",""], ["","",""], ["","",""]],
-                jogocomecou: false,
-                suavez: false,
-                finalclasse: "finalempate",
-                finalmsg: "Deu velha!"
-            };
-            socket.emit('playerJogoRestart', newdata);
+            socket.emit('playerJogoRestart', vm.info.gameId);
         };
 
         function cadastraOponente(data) {
@@ -268,7 +312,7 @@
         };
 
         function suaVez() {
-            console.log('É a minha vez!!!');
+            vm.info.suavezmsg = "É a sua vez!";
             vm.info.suavez = true;
             $scope.$apply();
         };
@@ -276,17 +320,17 @@
         function playerVitoria(condicao) {
             if (condicao != 9) {
                 vm.info.finalclasse = "finalvitoria";
-                vm.info.finalmsg = "Parabéns, você ganhou!";
+                vm.info.suavezmsg = "Parabéns, você ganhou!";
             };
-            terminaJogo();
+            terminaJogo(condicao);
         };
 
         function playerDerrota(condicao) {
             if (condicao != 9) {
                 vm.info.finalclasse = "finalderrota";
-                vm.info.finalmsg = "Vixe, você perdeu..."
+                vm.info.suavezmsg = "Vixe, você perdeu..."
             };
-            terminaJogo();
+            terminaJogo(condicao);
         };
 
         hp.Player.atualizaTelaEspera = function (playerdata) {
@@ -295,6 +339,7 @@
 
             // Exibir mensagem de "Uniu ao jogo, aguardando novo jogo começar"
             vm.info.espera = true;
+            vm.info.esperamsg = "Aguardando oponente!";
             console.log('Espera: ' + vm.info.espera);
             $scope.$apply();
         };
@@ -318,7 +363,7 @@
         hp.Player.atualizaTabuleiro = function (datajogada) {
             vm.info.tabuleiro = datajogada.tabuleiro;
             if (vm.info.estilo[datajogada.linha][datajogada.coluna] == "") {
-                vm.info.estilo[datajogada.linha][datajogada.coluna] = ["jogador2", "jogada2"];
+                vm.info.estilo[datajogada.linha][datajogada.coluna] = ["jogada2"];
             };
         }
     }

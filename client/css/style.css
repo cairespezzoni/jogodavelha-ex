@@ -248,11 +248,11 @@ footer {
 .app-bar img {
     width: 80px;
     float: left;
-    padding-right: 15px;
+    padding-top: 10px;
+    padding-right: 30px;
 }
 
 span {
-    border: solid 2px black;
     display: block;
     width: 100px;
     height: 100px;
@@ -262,8 +262,8 @@ grid {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    background: #ccc;
-    box-shadow: 2px 2px 15px #ddd;
+    /*background: #ccc;
+    box-shadow: 2px 2px 15px #ddd;*/
     margin: 10px auto;
     min-width: 250px;
     width: 400px;
@@ -279,18 +279,31 @@ grid .row {
 
 .espaco {
     box-sizing: border-box;
-    background: #ffffff;
-    box-shadow: 1px 1px 2px #777, inset -1px -1px 2px #777;
+    /*background: #ffffff;
+    box-shadow: 1px 1px 2px #777, inset -1px -1px 2px #777;*/
     width: 120px;
     height: 120px;
     min-width: 40px;
     min-height: 40px;
-    margin: 5px;
+    /*margin: 5px;*/
 }
+
+.espaco00 { border-right: solid 2px black; border-bottom: solid 2px black; }
+.espaco01 { border-left: solid 2px black; border-right: solid 2px black; border-bottom: solid 2px black;}
+.espaco02 { border-left: solid 2px black; border-bottom: solid 2px black; }
+.espaco10 { border-right: solid 2px black; border-top: solid 2px black; border-bottom: solid 2px black; }
+.espaco11 { border: solid 2px black; }
+.espaco12 { border-left: solid 2px black; border-top: solid 2px black; border-bottom: solid 2px black; }
+.espaco20 { border-right: solid 2px black; border-top: solid 2px black; }
+.espaco21 { border-right: solid 2px black; border-top: solid 2px black; border-left: solid 2px black; }
+.espaco22 { border-left: solid 2px black; border-top: solid 2px black; }
+
 .jogador1 { background: #ff7979; }
-.jogada1 { background-image: url('../img/player1.png'); }
+.jogada1 { background-image: url('../img/player1.png'); background-repeat: no-repeat; }
 .jogador2 { background: #8181ff; }
-.jogada2 { background-image: url('../img/player2.png'); }
+.jogada2 { background-image: url('../img/player2.png'); background-repeat: no-repeat; }
+
+.vitoria { background-color: #eeff00 };
 
 .finalempate { background: #777; }
 .finalvitoria { background: #ff7979; }
