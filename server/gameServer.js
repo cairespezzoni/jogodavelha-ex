@@ -132,24 +132,28 @@ function hostChecaVitoria(gameId, n) {
     // testar vitória
     // Compara o estado atual do jogo com o array de condições de vitória
     for (var condicao = 0; condicao < vitoria.length; condicao++) {
+        console.log("Condição: " + condicao);
         for (var linha = 0; linha < vitoria[condicao].length; linha++) {
+            console.log("Linha: " + linha);
             for (var coluna = 0; coluna < vitoria[condicao][linha].length; coluna++) {
                 //console.log("Condicao: " + condicao + ", Linha: " + linha + ", Coluna: " + coluna);
-                //console.log(jogo[gameId].tabuleiro[linha][coluna] + " compara com " + vitoria[condicao][linha][coluna]);
+                console.log(jogo[gameId].tabuleiro[linha][coluna] + " compara com " + vitoria[condicao][linha][coluna]);
                 if (jogo[gameId].tabuleiro[linha][coluna] === vitoria[condicao][linha][coluna] &&
                     jogo[gameId].tabuleiro[linha][coluna] === n) {
                         venceu++;
-                        //console.log(jogo[gameId].tabuleiro[linha][coluna] === vitoria[condicao][linha][coluna]);
+                        console.log(jogo[gameId].tabuleiro[linha][coluna] === vitoria[condicao][linha][coluna]);
                 }
                 if (jogo[gameId].tabuleiro[linha][coluna] != 0) {
                     empate++;
                 }
+                console.log("Vencimento: " + venceu);
             }
         }
-        if (venceu === 3) {
+        if (venceu >= 3) {
             console.log(venceu + " - O jogador " + n + " venceu na condição " + (condicao + 1) + ", jogo terminou!");
             return condicao + 1; // Vitória do jogador ativo, retorna inteiro de 1~8
         } else if (empate === 9) {
+            console.log(venceu + " - O jogador " + n + " empatou na condição " + (condicao + 1) + ", jogo terminou!" + "");
             console.log("Empatou!!!!!!!!!!!!");
             return 9; // Empate entre jogadores, retorna 9
         }

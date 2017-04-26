@@ -245,6 +245,12 @@ footer {
 
 /* ################################################ */
 
+.app-bar img {
+    width: 80px;
+    float: left;
+    padding-right: 15px;
+}
+
 span {
     border: solid 2px black;
     display: block;
@@ -282,7 +288,9 @@ grid .row {
     margin: 5px;
 }
 .jogador1 { background: #ff7979; }
+.jogada1 { background-image: url('../img/player1.png'); }
 .jogador2 { background: #8181ff; }
+.jogada2 { background-image: url('../img/player2.png'); }
 
 .finalempate { background: #777; }
 .finalvitoria { background: #ff7979; }

@@ -19,7 +19,10 @@
     </head>
     <body ng-app="app" ng-controller="AppController as vm" class="clearfix" ng-class="[{ jogador1: vm.info.suavez && vm.info.jogocomecou}, { jogador2: !vm.info.suavez && vm.info.jogocomecou }]">
         <header>
-            <div class="app-bar"><h1>Jogo da Velha - {{ vm.info.pagina }}</h1></title>
+            <div class="app-bar">
+                <img src="./img/jogodavelha_icon.png" alt="Ícone do Jogo da Velha">
+                <h1>Jogo da Velha</h1>
+            </div>
         </header>
         
         <div class="content" ng-include="vm.info.pagina">

@@ -192,9 +192,9 @@
 
         hp.Host.atualizaTabuleiro = function (datajogada) {
             if (datajogada.nome == vm.info.jogadores[0]) {
-                vm.info.estilo[datajogada.linha][datajogada.coluna] = "jogador1";
+                vm.info.estilo[datajogada.linha][datajogada.coluna] = ["jogador1", "jogada1"];
             } else {
-                vm.info.estilo[datajogada.linha][datajogada.coluna] = "jogador2";
+                vm.info.estilo[datajogada.linha][datajogada.coluna] = ["jogador2", "jogada2"];
             };
         };
 
@@ -231,7 +231,7 @@
             if (vm.info.suavez == true && meusDados.papel == 'Player') {
                 if (!vm.info.tabuleiro[linha][coluna]) {
                     console.log("...e era sua vez!");
-                    vm.info.estilo[linha][coluna] = "jogador1";
+                    vm.info.estilo[linha][coluna] = ["jogador1", "jogada1"];
                     var datajogada = {
                         linha: linha,
                         coluna: coluna,
@@ -318,7 +318,7 @@
         hp.Player.atualizaTabuleiro = function (datajogada) {
             vm.info.tabuleiro = datajogada.tabuleiro;
             if (vm.info.estilo[datajogada.linha][datajogada.coluna] == "") {
-                vm.info.estilo[datajogada.linha][datajogada.coluna] = "jogador2";
+                vm.info.estilo[datajogada.linha][datajogada.coluna] = ["jogador2", "jogada2"];
             };
         }
     }
